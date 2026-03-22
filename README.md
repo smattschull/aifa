@@ -69,7 +69,6 @@ AIFA is built on a modern, powerful, and scalable technology stack, leveraging t
 We are actively developing AIFA with a clear vision for the future.
 
 - **✅ In Progress: AI-Powered Page Generation**
-
   - We are finalizing a feature inspired by `v0.dev` that allows users to generate beautifully designed pages, documents, and guides through conversational prompts. This will dramatically speed up content creation.
 
 - **▶️ Up Next: Deep Chat & Content Synchronization**
@@ -97,5 +96,3 @@ Roma Armstrong
 telegram contact: **@roma_armstrong**
 
 ---
-
-_The future is not written in corporate data centers, but in code that lives and evolves on millions of servers around the world._
