@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import {
   privilegedLogin,
-  LoginActionState,
+  type LoginActionState,
 } from "../(_actions)/privileged-login";
 import { useRouter } from "next/navigation";
 import { LoaderIcon } from "@/components/shared/icons";
@@ -47,8 +47,8 @@ export default function PrivilegedLogin({
         type: "error",
         description:
           state.status === "failed"
-            ? privilegedRole + " " + t("Invalid credentials!")
-            : privilegedRole + " " + t("Form validation error!"),
+            ? `${privilegedRole} ${t("Invalid credentials!")}`
+            : `${privilegedRole} ${t("Form validation error!")}`,
       });
     } else if (state.status === "success") {
       toast({ type: "success", description: t("Login successful!") });
@@ -92,7 +92,7 @@ export default function PrivilegedLogin({
           />
         </div>
         <div className="grid gap-2 mt-4 text-left ">
-          <Label htmlFor="password">{`${privilegedRole ? t("Input password for") + " " + privilegedRole : t("Password")}`}</Label>
+          <Label htmlFor="password">{`${privilegedRole ? `${t("Input password for")} ${privilegedRole}` : t("Password")}`}</Label>
           <Input id="password" type="password" name="password" required />
           <Button disabled={!privilegedRole || isLoading} className="mt-2">
             {isLoading && (
