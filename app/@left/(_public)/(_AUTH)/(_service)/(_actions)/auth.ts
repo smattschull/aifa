@@ -59,11 +59,6 @@ const providers: Provider[] = [
       const passwordsMatch = await compare(password, user.password);
 
       if (!passwordsMatch) {
-        if (user.type === "architect")
-          throw new Error("architect_password_incorrect");
-        if (user.type === "admin") throw new Error("admin_password_incorrect");
-        if (user.type === "editor")
-          throw new Error("editor_password_incorrect");
         return null;
       }
       // Возвращаем пользователя с правильным типом
@@ -89,13 +84,16 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    })
+    }),
   );
 }
 
 if (process.env.RESEND_API_KEY && process.env.EMAIL_FROM) {
   providers.push(
-    Resend({ apiKey: process.env.RESEND_API_KEY, from: process.env.EMAIL_FROM })
+    Resend({
+      apiKey: process.env.RESEND_API_KEY,
+      from: process.env.EMAIL_FROM,
+    }),
   );
 }
 
@@ -164,13 +162,13 @@ export const {
             token.picture = dbUser.image;
           } else {
             console.warn(
-              `Could not refresh user data for ${token.sub}, using cached token data`
+              `Could not refresh user data for ${token.sub}, using cached token data`,
             );
           }
         } catch (error) {
           console.error(
             "Failed to refresh user data, using cached token:",
-            error
+            error,
           );
           await signOut({
             redirectTo: "/login",
