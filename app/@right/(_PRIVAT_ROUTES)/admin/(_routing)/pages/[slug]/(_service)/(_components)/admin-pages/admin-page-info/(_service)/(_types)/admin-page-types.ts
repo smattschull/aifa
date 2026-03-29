@@ -1,7 +1,7 @@
 // @/app/@right/(_PRIVAT_ROUTES)/admin/(_routing)/pages/[slug]/(_service)/(_components)/admin-pages/admin-page-info/(_service)/(_types)/admin-page-types.ts
 
-import { PageData } from "@/app/@right/(_service)/(_types)/page-types";
-import { LucideIcon } from "lucide-react";
+import type { PageData } from "@/app/@right/(_service)/(_types)/page-types";
+import type { LucideIcon } from "lucide-react";
 
 /**
  * Props interface for AdminPageInfo component

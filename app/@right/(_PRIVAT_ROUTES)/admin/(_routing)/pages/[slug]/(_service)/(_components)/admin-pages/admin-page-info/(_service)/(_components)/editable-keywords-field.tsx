@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Edit3, Save, X, AlertCircle, Plus, Hash, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
+import type {
   KeywordsFieldConfig,
   UseKeywordsFieldReturn,
 } from "../(_types)/admin-page-types";
@@ -229,7 +229,8 @@ export function EditableKeywordsField({
               {/* Display existing keywords */}
               {keywordsList.map((keyword, index) => (
                 <div
-                  key={`${keyword}-${index}`}
+                  key={`${keyword}-${// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                    index}`}
                   className={KEYWORDS_STATES_CLASSES.keyword}
                 >
                   <Hash className="size-3" />
@@ -316,7 +317,8 @@ export function EditableKeywordsField({
               <div className="flex flex-wrap gap-2">
                 {displayKeywords.map((keyword, index) => (
                   <Badge
-                    key={`display-${keyword}-${index}`}
+                    key={`display-${keyword}-${// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                      index}`}
                     variant="secondary"
                     className="text-xs"
                   >

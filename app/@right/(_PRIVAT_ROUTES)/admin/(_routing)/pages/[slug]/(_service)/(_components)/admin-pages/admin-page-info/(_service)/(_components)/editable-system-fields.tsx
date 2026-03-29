@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Edit3, Save, X, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
+import type {
   EditableSystemField,
   SystemFieldConfig,
 } from "../(_types)/admin-page-types";

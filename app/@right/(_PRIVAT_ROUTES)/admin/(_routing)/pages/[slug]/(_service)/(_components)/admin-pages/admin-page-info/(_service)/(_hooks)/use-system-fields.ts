@@ -5,8 +5,8 @@
 import { useState, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { useNavigationMenu } from "@/app/@right/(_service)/(_context)/nav-bar-provider";
-import { PageData } from "@/app/@right/(_service)/(_types)/page-types";
-import {
+import type { PageData } from "@/app/@right/(_service)/(_types)/page-types";
+import type {
   EditableSystemField,
   UseSystemFieldsReturn,
   FieldValidation,
@@ -31,7 +31,7 @@ interface UseSystemFieldsProps {
  */
 const validateField = (
   field: EditableSystemField,
-  value: string
+  value: string,
 ): FieldValidation => {
   const sanitizedValue = FIELD_VALIDATION_RULES.TRIM_WHITESPACE
     ? value.trim()
@@ -82,7 +82,7 @@ export function useSystemFields({
   const { categories, setCategories, updateCategories } = useNavigationMenu();
 
   const [editingField, setEditingField] = useState<EditableSystemField | null>(
-    null
+    null,
   );
   const [editingValue, setEditingValue] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
@@ -90,6 +90,7 @@ export function useSystemFields({
   const originalValueRef = useRef<string>("");
 
   // Check if page is valid for operations - FIXED: properly convert to boolean
+  // biome-ignore lint/complexity/useOptionalChain: <explanation>
   const isPageValid = Boolean(page && page.id);
 
   /**
@@ -114,7 +115,7 @@ export function useSystemFields({
 
       console.log(`Started editing field: ${field} for page: ${page?.id}`);
     },
-    [isUpdating, isPageValid, page?.id]
+    [isUpdating, isPageValid, page?.id],
   );
 
   /**
@@ -127,7 +128,7 @@ export function useSystemFields({
     }
 
     console.log(
-      `Cancelled editing field: ${editingField} for page: ${page?.id}`
+      `Cancelled editing field: ${editingField} for page: ${page?.id}`,
     );
 
     setEditingField(null);
@@ -183,10 +184,10 @@ export function useSystemFields({
             : {
                 ...cat,
                 pages: cat.pages.map((p) =>
-                  p.id !== page.id ? p : updatedPage
+                  p.id !== page.id ? p : updatedPage,
                 ),
-              }
-        )
+              },
+        ),
       );
 
       const updateError = await updateCategories();
@@ -205,14 +206,14 @@ export function useSystemFields({
                       : {
                           ...p,
                           [editingField]: originalValueRef.current,
-                        }
+                        },
                   ),
-                }
-          )
+                },
+          ),
         );
 
         toast.error(
-          `Failed to update ${editingField}: ${updateError.userMessage}`
+          `Failed to update ${editingField}: ${updateError.userMessage}`,
         );
         console.error(`Failed to update field ${editingField}:`, updateError);
         return false;
@@ -227,7 +228,7 @@ export function useSystemFields({
       });
 
       console.log(
-        `Successfully updated field: ${editingField} for page: ${page.id}`
+        `Successfully updated field: ${editingField} for page: ${page.id}`,
       );
       return true;
     } catch (error) {
@@ -244,10 +245,10 @@ export function useSystemFields({
                     : {
                         ...p,
                         [editingField]: originalValueRef.current,
-                      }
+                      },
                 ),
-              }
-        )
+              },
+        ),
       );
 
       toast.error(`Unexpected error updating ${editingField}`, {

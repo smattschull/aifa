@@ -1,7 +1,7 @@
 // File: @/app/admin/pages/[slug]/(_service)/(_components)/system-instruction-generator.tsx
 
-import { MenuCategory } from "@/app/@right/(_service)/(_types)/menu-types";
-import { PageData } from "@/app/@right/(_service)/(_types)/page-types";
+import type { MenuCategory } from "@/app/@right/(_service)/(_types)/menu-types";
+import type { PageData } from "@/app/@right/(_service)/(_types)/page-types";
 import { DEFAULT_CONTENT_STRUCTURE } from "@/config/default-page-structure-config";
 import { appConfig } from "@/config/appConfig";
 import { useMemo } from "react";
@@ -113,6 +113,7 @@ export function useSystemInstructionGenerator({
 
     // Define explicit H2 selfPrompt suffix literal to be appended by the model (in Russian, as requested) [1]
     const h2SelfPromptSuffixLiteral =
+      // biome-ignore lint/style/useTemplate: <explanation>
       `• также следует учитывать пользовательские настройки, сделанные ко всей странице: ` +
       `writing-style:{title:${selectedStyle?.label || ""}, description:${selectedStyle?.description || ""}}, ` +
       `content-format:{title:${selectedFormat?.label || ""}, description:${selectedFormat?.description || ""}}, ` +
@@ -138,9 +139,9 @@ PAGE_DATA: {
   category: "${category?.title || ""}",
   images: [
 ${imagesList
-  .split("\n")
-  .map((line) => `    ${line}`)
-  .join("\n")}
+        .split("\n")
+        .map((line) => `    ${line}`)
+        .join("\n")}
   ],
   writingStyle: "${selectedStyle?.label || ""}" - ${selectedStyle?.description || ""},
   contentFormat: "${selectedFormat?.label || ""}" - ${selectedFormat?.description || ""},
@@ -210,15 +211,14 @@ MATRIX FILLING RULES:
 7) CODE TAG USAGE (COPYABLE INFO)
 - The code tag can represent copyable text beyond programming code (phones, addresses, booking refs, commands, URLs, emails).
 - Do NOT generate any actual content now; only metadata + advisory min/max + placeholder.
-${
-  sanitizedCustom
-    ? `
+${sanitizedCustom
+        ? `
 8) CUSTOM REQUIREMENTS:
 "${sanitizedCustom}"
 - Integrate these requirements into EACH element’s selfPrompt and metadata where relevant.
 `
-    : ""
-}
+        : ""
+      }
 /**
 * =============================================================================
 * MATRIX TO FILL

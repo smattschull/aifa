@@ -5,8 +5,8 @@
 import { useState, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { useNavigationMenu } from "@/app/@right/(_service)/(_context)/nav-bar-provider";
-import { PageData } from "@/app/@right/(_service)/(_types)/page-types";
-import {
+import type { PageData } from "@/app/@right/(_service)/(_types)/page-types";
+import type {
   UseKeywordsFieldReturn,
   KeywordsValidation,
 } from "../(_types)/admin-page-types";
@@ -29,7 +29,7 @@ interface UseKeywordsFieldProps {
  * Validates a single keyword according to business rules
  */
 const validateKeyword = (
-  keyword: string
+  keyword: string,
 ): { isValid: boolean; error?: string; sanitizedValue?: string } => {
   const sanitized = KEYWORDS_VALIDATION_RULES.TRIM_WHITESPACE
     ? keyword.trim()
@@ -97,8 +97,8 @@ const validateKeywords = (keywords: string[]): KeywordsValidation => {
         new Set(
           KEYWORDS_VALIDATION_RULES.CASE_INSENSITIVE_DUPLICATES
             ? sanitizedKeywords.map((k) => k.toLowerCase())
-            : sanitizedKeywords
-        )
+            : sanitizedKeywords,
+        ),
       ).map((k) => {
         // Find original case version for case-insensitive deduplication
         if (KEYWORDS_VALIDATION_RULES.CASE_INSENSITIVE_DUPLICATES) {
@@ -135,6 +135,7 @@ export function useKeywordsField({
   const originalKeywordsRef = useRef<string[]>([]);
 
   // Check if page is valid for operations
+  // biome-ignore lint/complexity/useOptionalChain: <explanation>
   const isPageValid = Boolean(page && page.id);
 
   /**
@@ -160,7 +161,7 @@ export function useKeywordsField({
 
     console.log(
       `Started editing keywords for page: ${page?.id}`,
-      currentKeywords
+      currentKeywords,
     );
   }, [isUpdating, isPageValid, page]);
 
@@ -196,12 +197,13 @@ export function useKeywordsField({
         return;
       }
 
+      // biome-ignore lint/style/noNonNullAssertion: <explanation>
       const sanitizedKeyword = validation.sanitizedValue!;
 
       // Check for duplicates (case-insensitive if configured)
       const isDuplicate = KEYWORDS_VALIDATION_RULES.CASE_INSENSITIVE_DUPLICATES
         ? keywordsList.some(
-            (k) => k.toLowerCase() === sanitizedKeyword.toLowerCase()
+            (k) => k.toLowerCase() === sanitizedKeyword.toLowerCase(),
           )
         : keywordsList.includes(sanitizedKeyword);
 
@@ -213,7 +215,7 @@ export function useKeywordsField({
       // Check maximum count
       if (keywordsList.length >= KEYWORDS_VALIDATION_RULES.MAX_KEYWORDS) {
         toast.error(
-          `Maximum ${KEYWORDS_VALIDATION_RULES.MAX_KEYWORDS} keywords allowed`
+          `Maximum ${KEYWORDS_VALIDATION_RULES.MAX_KEYWORDS} keywords allowed`,
         );
         return;
       }
@@ -223,7 +225,7 @@ export function useKeywordsField({
 
       console.log(`Added keyword: "${sanitizedKeyword}"`);
     },
-    [keywordsList]
+    [keywordsList],
   );
 
   /**
@@ -241,7 +243,7 @@ export function useKeywordsField({
 
       console.log(`Removed keyword at index ${index}: "${removedKeyword}"`);
     },
-    [keywordsList]
+    [keywordsList],
   );
 
   /**
@@ -289,10 +291,10 @@ export function useKeywordsField({
             : {
                 ...cat,
                 pages: cat.pages.map((p) =>
-                  p.id !== page.id ? p : updatedPage
+                  p.id !== page.id ? p : updatedPage,
                 ),
-              }
-        )
+              },
+        ),
       );
 
       // Attempt to persist changes
@@ -312,10 +314,10 @@ export function useKeywordsField({
                       : {
                           ...p,
                           keywords: originalKeywordsRef.current,
-                        }
+                        },
                   ),
-                }
-          )
+                },
+          ),
         );
 
         toast.error(`Failed to update keywords: ${updateError.userMessage}`);
@@ -332,12 +334,12 @@ export function useKeywordsField({
       const keywordCount = validation.sanitizedKeywords?.length || 0;
       toast.success(
         `Keywords updated successfully (${keywordCount} keyword${keywordCount !== 1 ? "s" : ""})`,
-        { duration: FIELD_UI_CONFIG.SUCCESS_TOAST_DURATION }
+        { duration: FIELD_UI_CONFIG.SUCCESS_TOAST_DURATION },
       );
 
       console.log(
         `Successfully updated keywords for page: ${page.id}`,
-        validation.sanitizedKeywords
+        validation.sanitizedKeywords,
       );
       return true;
     } catch (error) {
@@ -354,10 +356,10 @@ export function useKeywordsField({
                     : {
                         ...p,
                         keywords: originalKeywordsRef.current,
-                      }
+                      },
                 ),
-              }
-        )
+              },
+        ),
       );
 
       toast.error("Unexpected error updating keywords", {

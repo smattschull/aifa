@@ -9,7 +9,7 @@ import DoublePresentation from "../page-transformer-components/custom-sections/c
 import { FeaturesGrid } from "./home-page-sections/features-grid";
 import HeroSection from "./home-page-sections/hero-sections";
 import {
-  HorizontalStepData,
+  type HorizontalStepData,
   HorizontalSteps,
 } from "./home-page-sections/horizontal-steps";
 import Impacts from "./home-page-sections/impacts";

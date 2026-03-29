@@ -24,6 +24,45 @@ interface ContentStructureStreamCardProps {
     onStreamCompleted?: (structure: RootContentStructure[]) => void;
 }
 
+function extractJsonCandidate(text: string): string | null {
+    const trimmed = text.trim();
+    if (!trimmed) {
+        return null;
+    }
+
+    const fencedBlockMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
+    if (fencedBlockMatch?.[1]) {
+        return fencedBlockMatch[1].trim();
+    }
+
+    const firstArrayIndex = trimmed.indexOf("[");
+    const lastArrayIndex = trimmed.lastIndexOf("]");
+    if (firstArrayIndex !== -1 && lastArrayIndex > firstArrayIndex) {
+        return trimmed.slice(firstArrayIndex, lastArrayIndex + 1).trim();
+    }
+
+    return trimmed;
+}
+
+function parseGeneratedStructure(text: string): RootContentStructure[] | null {
+    const candidates = [text, extractJsonCandidate(text)].filter(
+        (candidate): candidate is string => Boolean(candidate && candidate.trim())
+    );
+
+    for (const candidate of candidates) {
+        try {
+            const parsed = JSON.parse(candidate);
+            if (Array.isArray(parsed)) {
+                return parsed as RootContentStructure[];
+            }
+        } catch {
+            // Try the next candidate.
+        }
+    }
+
+    return null;
+}
+
 export function ContentStructureStreamCard({
     systemInstruction,
     pageData,
@@ -45,22 +84,25 @@ export function ContentStructureStreamCard({
         }
     }, [isStreaming, streamText]);
 
-    // Watch for streaming completion and parse JSON
+    // Watch for streaming completion and parse JSON more defensively.
     React.useEffect(() => {
         if (!isStreaming && streamText && streamText.trim().length > 0) {
-            try {
-                // Try to parse JSON from streamed text
-                const parsed = JSON.parse(streamText);
-                if (Array.isArray(parsed)) {
-                    setGeneratedStructure(parsed);
-                    setStreamCompleted(true);
-                    onStreamCompleted?.(parsed);
-                }
-            } catch (e) {
-                console.warn("Failed to parse streamed JSON:", e);
-                // If not JSON, treat as raw text and create basic structure
+            const parsedStructure = parseGeneratedStructure(streamText);
+
+            if (parsedStructure) {
+                setGeneratedStructure(parsedStructure);
                 setStreamCompleted(true);
+                onStreamCompleted?.(parsedStructure);
+                return;
             }
+
+            console.warn("Failed to parse streamed JSON structure");
+            setGeneratedStructure([]);
+            setStreamCompleted(false);
+            toast.error("Generated structure is not valid JSON yet", {
+                id: "step5-parse-error",
+                description: "Try generating again, or make sure the output is a JSON array.",
+            });
         }
     }, [isStreaming, streamText, onStreamCompleted]);
 

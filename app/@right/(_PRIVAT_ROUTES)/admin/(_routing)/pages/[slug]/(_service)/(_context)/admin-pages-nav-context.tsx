@@ -6,14 +6,14 @@ import {
   createContext,
   useContext,
   useState,
-  ReactNode,
+  type ReactNode,
   useEffect,
   useMemo,
 } from "react";
 import {
   ADMIN_PAGES_CONFIG,
   ADMIN_PAGES_TABS,
-  IndicatorStatus,
+  type IndicatorStatus,
   canActivateStep,
 } from "../(_config)/admin-pages-config";
 
@@ -25,7 +25,7 @@ import {
 
 // ✅ ИСПРАВЛЕНО: Импортируем хук оркестратора
 import { useStepsOrchestrator } from "../(_hooks)/use-steps-orchestrator";
-import { PageData } from "@/app/@right/(_service)/(_types)/page-types";
+import type { PageData } from "@/app/@right/(_service)/(_types)/page-types";
 
 export type AdminPageTab =
   | "info"

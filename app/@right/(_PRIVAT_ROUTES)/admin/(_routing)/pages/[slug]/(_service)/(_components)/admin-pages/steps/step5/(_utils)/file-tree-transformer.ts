@@ -1,6 +1,6 @@
 // @/app/admin/pages/[slug]/(_service)/(_utils)/file-tree-transformer.ts
 
-import { ContentStructure } from "@/app/@right/(_service)/(_types)/page-types";
+import type { ContentStructure } from "@/app/@right/(_service)/(_types)/page-types";
 
 export type TreeNode = {
   id: string;
@@ -16,7 +16,7 @@ export type TreeNode = {
 function generateNodeId(
   structure: ContentStructure,
   index: number,
-  depth: number = 0
+  depth = 0,
 ): string {
   // Используем доступные поля из ContentStructure
   if (structure.id) {
@@ -45,12 +45,12 @@ function generateNodeName(structure: ContentStructure, index: number): string {
  * Transforms ContentStructure array to TreeNode array for TOC component
  */
 export function fileTreeDataTransformer(
-  contentStructures: ContentStructure[]
+  contentStructures: ContentStructure[],
 ): TreeNode[] {
   function transformContentStructure(
     structure: ContentStructure,
     index: number,
-    depth: number = 0
+    depth = 0,
   ): TreeNode {
     // ✅ ИСПРАВЛЕНО: Используем корневые поля вместо additionalData.position
     const nodeId = generateNodeId(structure, index, depth);
@@ -64,8 +64,8 @@ export function fileTreeDataTransformer(
     ) {
       children.push(
         ...structure.realContentStructure.map((child, childIndex) =>
-          transformContentStructure(child, childIndex, depth + 1)
-        )
+          transformContentStructure(child, childIndex, depth + 1),
+        ),
       );
     }
 
@@ -87,7 +87,7 @@ export function fileTreeDataTransformer(
   }
 
   return contentStructures.map((structure, index) =>
-    transformContentStructure(structure, index)
+    transformContentStructure(structure, index),
   );
 }
 
@@ -95,13 +95,13 @@ export function fileTreeDataTransformer(
  * ✅ Улучшенная версия с расширенной логикой ID генерации
  */
 export function fileTreeDataTransformerEnhanced(
-  contentStructures: ContentStructure[]
+  contentStructures: ContentStructure[],
 ): TreeNode[] {
   function transformEnhanced(
     structure: ContentStructure,
     index: number,
-    depth: number = 0,
-    parentId?: string
+    depth = 0,
+    parentId?: string,
   ): TreeNode {
     // Генерируем уникальный ID с учётом иерархии
     let nodeId: string;
@@ -130,8 +130,8 @@ export function fileTreeDataTransformerEnhanced(
     ) {
       children.push(
         ...structure.realContentStructure.map((child, childIndex) =>
-          transformEnhanced(child, childIndex, depth + 1, nodeId)
-        )
+          transformEnhanced(child, childIndex, depth + 1, nodeId),
+        ),
       );
     }
 
@@ -156,7 +156,7 @@ export function fileTreeDataTransformerEnhanced(
   }
 
   return contentStructures.map((structure, index) =>
-    transformEnhanced(structure, index)
+    transformEnhanced(structure, index),
   );
 }
 
@@ -164,12 +164,12 @@ export function fileTreeDataTransformerEnhanced(
  * ✅ Версия с детальной информацией для отладки
  */
 export function fileTreeDataTransformerDebug(
-  contentStructures: ContentStructure[]
+  contentStructures: ContentStructure[],
 ): TreeNode[] {
   function transformDebug(
     structure: ContentStructure,
     index: number,
-    depth: number = 0
+    depth = 0,
   ): TreeNode {
     const nodeId = generateNodeId(structure, index, depth);
 
@@ -195,8 +195,8 @@ export function fileTreeDataTransformerDebug(
     ) {
       children.push(
         ...structure.realContentStructure.map((child, childIndex) =>
-          transformDebug(child, childIndex, depth + 1)
-        )
+          transformDebug(child, childIndex, depth + 1),
+        ),
       );
     }
 
@@ -208,7 +208,7 @@ export function fileTreeDataTransformerDebug(
   }
 
   return contentStructures.map((structure, index) =>
-    transformDebug(structure, index)
+    transformDebug(structure, index),
   );
 }
 
@@ -223,14 +223,14 @@ export type IdGenerationStrategy =
 
 export function fileTreeDataTransformerFlexible(
   contentStructures: ContentStructure[],
-  strategy: IdGenerationStrategy = "id-first"
+  strategy: IdGenerationStrategy = "id-first",
 ): TreeNode[] {
   function generateFlexibleId(
     structure: ContentStructure,
     index: number,
     depth: number,
     strategy: IdGenerationStrategy,
-    parentId?: string
+    parentId?: string,
   ): string {
     switch (strategy) {
       case "id-first":
@@ -247,10 +247,12 @@ export function fileTreeDataTransformerFlexible(
           : structure.id || `content-${depth}-${index}`;
 
       case "hierarchical":
+        // biome-ignore lint/correctness/noSwitchDeclarations: <explanation>
         const baseId = structure.id || structure.order || `${index}`;
         return parentId ? `${parentId}.${baseId}` : `${baseId}`;
 
       case "classification-based":
+        // biome-ignore lint/correctness/noSwitchDeclarations: <explanation>
         const classification =
           structure.classification || structure.tag || "content";
         return structure.id || `${classification}-${depth}-${index}`;
@@ -263,15 +265,15 @@ export function fileTreeDataTransformerFlexible(
   function transformFlexible(
     structure: ContentStructure,
     index: number,
-    depth: number = 0,
-    parentId?: string
+    depth = 0,
+    parentId?: string,
   ): TreeNode {
     const nodeId = generateFlexibleId(
       structure,
       index,
       depth,
       strategy,
-      parentId
+      parentId,
     );
     const nodeName = generateNodeName(structure, index);
 
@@ -282,8 +284,8 @@ export function fileTreeDataTransformerFlexible(
     ) {
       children.push(
         ...structure.realContentStructure.map((child, childIndex) =>
-          transformFlexible(child, childIndex, depth + 1, nodeId)
-        )
+          transformFlexible(child, childIndex, depth + 1, nodeId),
+        ),
       );
     }
 
@@ -297,6 +299,6 @@ export function fileTreeDataTransformerFlexible(
   }
 
   return contentStructures.map((structure, index) =>
-    transformFlexible(structure, index)
+    transformFlexible(structure, index),
   );
 }

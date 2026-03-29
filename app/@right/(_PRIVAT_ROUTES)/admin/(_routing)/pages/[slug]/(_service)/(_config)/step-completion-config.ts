@@ -1,7 +1,7 @@
 // @/app/@right/(_PRIVAT_ROUTES)/admin/(_routing)/pages/[slug]/(_service)/(_config)/step-completion-config.ts
 
-import { PageData } from "@/app/@right/(_service)/(_types)/page-types";
-import { AdminPageTab } from "../(_context)/admin-pages-nav-context";
+import type { PageData } from "@/app/@right/(_service)/(_types)/page-types";
+import type { AdminPageTab } from "../(_context)/admin-pages-nav-context";
 
 /**
  * Interface for step completion validation logic
@@ -34,7 +34,7 @@ export const STEP_COMPLETION_CONDITIONS: StepCompletionCondition[] = [
       // Step 2: Load Analysis Results - завершен если хотя бы один конкурент проанализирован
       return (
         pageData?.competitorAnalysis?.some(
-          (analysis) => analysis.isAnalyzed === true
+          (analysis) => analysis.isAnalyzed === true,
         ) ?? false
       );
     },
@@ -99,15 +99,15 @@ export const STEP_COMPLETION_CONDITIONS: StepCompletionCondition[] = [
   {
     stepKey: "preview",
     validate: (pageData: PageData | null) => {
-      // Step 12: Generator isPreviewComplited 
+      // Step 12: Generator isPreviewComplited
       return (
-        (pageData?.isPreviewComplited !== undefined &&
-          pageData?.isPreviewComplited !== false) 
+        pageData?.isPreviewComplited !== undefined &&
+        pageData?.isPreviewComplited !== false
       );
     },
     description: "Требует генерации isPreviewComplited ",
     debugInfo: (pageData) =>
-      `📝 Perplexity prompt: ${pageData?.isPreviewComplited  ? "Есть" : "Нет"}`,
+      `📝 Perplexity prompt: ${pageData?.isPreviewComplited ? "Есть" : "Нет"}`,
   },
 ];
 
@@ -115,7 +115,7 @@ export const STEP_COMPLETION_CONDITIONS: StepCompletionCondition[] = [
  * ✅ ФУНКЦИЯ: Получить все завершенные шаги на основе реальных данных
  */
 export const getAllCompletedSteps = (
-  pageData: PageData | null
+  pageData: PageData | null,
 ): AdminPageTab[] => {
   if (!pageData) {
     console.log("🎭 No page data - no completed steps");
@@ -142,7 +142,7 @@ export const getAllCompletedSteps = (
  * ✅ ФУНКЦИЯ: Получить отладочную информацию для всех шагов
  */
 export const getStepsDebugInfo = (
-  pageData: PageData | null
+  pageData: PageData | null,
 ): Record<AdminPageTab, string> => {
   const debugInfo: Partial<Record<AdminPageTab, string>> = {};
 
