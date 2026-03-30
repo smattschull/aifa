@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  DisplayMode,
+  type DisplayMode,
   useAdminPagesNav,
 } from "../(_context)/admin-pages-nav-context";
 import {

@@ -1,4 +1,4 @@
-import { AdminPageTab } from "../(_context)/admin-pages-nav-context";
+import type { AdminPageTab } from "../(_context)/admin-pages-nav-context";
 
 export type IndicatorStatus = "gray" | "orange" | "green";
 export type StepType = "required" | "optional";
@@ -189,16 +189,16 @@ export const ADMIN_PAGES_CONFIG = {
   projectName: "ContentCombine Pro",
   version: "1.0.0",
   requiredSteps: ADMIN_PAGES_TABS.filter(
-    (step) => step.stepType === "required"
+    (step) => step.stepType === "required",
   ),
   optionalSteps: ADMIN_PAGES_TABS.filter(
-    (step) => step.stepType === "optional"
+    (step) => step.stepType === "optional",
   ),
 } as const;
 
 export const canActivateStep = (
   stepKey: AdminPageTab,
-  completedSteps: AdminPageTab[]
+  completedSteps: AdminPageTab[],
 ): boolean => {
   const step = ADMIN_PAGES_TABS.find((s) => s.key === stepKey);
   if (!step || !step.dependencies) return true;
@@ -207,11 +207,11 @@ export const canActivateStep = (
 };
 
 export const getAvailableNextSteps = (
-  completedSteps: AdminPageTab[]
+  completedSteps: AdminPageTab[],
 ): AdminPageTab[] => {
   return ADMIN_PAGES_TABS.filter(
     (step) =>
       !completedSteps.includes(step.key) &&
-      canActivateStep(step.key, completedSteps)
+      canActivateStep(step.key, completedSteps),
   ).map((step) => step.key);
 };

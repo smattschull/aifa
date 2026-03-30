@@ -35,9 +35,7 @@ export const visibilityConfigEn: VisibilityConfigType = {
 };
 
 // Функция для получения конфига по языку
-export const getVisibilityConfig = (
-  locale: string = "en"
-): VisibilityConfigType => {
+export const getVisibilityConfig = (locale = "en"): VisibilityConfigType => {
   switch (locale) {
     case "ru":
       return visibilityConfig;

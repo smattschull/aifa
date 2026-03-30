@@ -31,6 +31,7 @@ export default function PrivilegedLogin({
   const router = useRouter();
   const { update: updateSession } = useSession();
   const [privilegedRole, setPrivilegedRole] = useState<string | null>(null);
+  const [roleKey, setRoleKey] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [isLoading, setLoading] = useState(false);
 
@@ -53,7 +54,12 @@ export default function PrivilegedLogin({
     } else if (state.status === "success") {
       toast({ type: "success", description: t("Login successful!") });
       updateSession();
-      router.push("/");
+      // Redirect admins to admin area so right panel shows private routes
+      if (roleKey === "admin") {
+        router.push("/admin/vercel-deploy");
+      } else {
+        router.push("/");
+      }
     }
   }, [state, privilegedRole]);
 
@@ -63,11 +69,17 @@ export default function PrivilegedLogin({
 
     if (privilegedEmails.architects.includes(currentEmail)) {
       setPrivilegedRole(t("Architect"));
+      setRoleKey("architect");
     } else if (privilegedEmails.admins.includes(currentEmail)) {
       setPrivilegedRole(t("Administrator"));
+      setRoleKey("admin");
     } else if (privilegedEmails.editors.includes(currentEmail)) {
       setPrivilegedRole(t("Editor"));
-    } else setPrivilegedRole(null);
+      setRoleKey("editor");
+    } else {
+      setPrivilegedRole(null);
+      setRoleKey(null);
+    }
   };
 
   return (
