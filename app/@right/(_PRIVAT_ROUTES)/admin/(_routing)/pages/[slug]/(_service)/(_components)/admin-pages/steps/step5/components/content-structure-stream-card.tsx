@@ -15,7 +15,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { CheckCircle, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { useStep5Save } from "../(_hooks)/use-step5-save";
-import { RootContentStructure } from "@/app/@right/(_service)/(_types)/page-types";
+import type { RootContentStructure } from "@/app/@right/(_service)/(_types)/page-types";
 import { useStep5Stream } from "../(_hooks)/use-step5-stream";
 
 interface ContentStructureStreamCardProps {
@@ -46,6 +46,7 @@ function extractJsonCandidate(text: string): string | null {
 
 function parseGeneratedStructure(text: string): RootContentStructure[] | null {
     const candidates = [text, extractJsonCandidate(text)].filter(
+        // biome-ignore lint/complexity/useOptionalChain: <explanation>
         (candidate): candidate is string => Boolean(candidate && candidate.trim())
     );
 
@@ -69,7 +70,7 @@ export function ContentStructureStreamCard({
     onStreamCompleted
 }: ContentStructureStreamCardProps) {
     // Streaming hook for live preview
-    const { streamText, isStreaming, startStreaming, cancel } = useStep5Stream();
+    const { streamText, isStreaming, startStreaming, cancel, lastError } = useStep5Stream();
     const { saveDraftContentStructure } = useStep5Save();
 
     // Local state for streaming output
@@ -79,10 +80,8 @@ export function ContentStructureStreamCard({
 
     // Keep the textarea in sync with the streaming completion
     React.useEffect(() => {
-        if (isStreaming) {
-            setLocalPreview(streamText ?? "");
-        }
-    }, [isStreaming, streamText]);
+        setLocalPreview(streamText ?? "");
+    }, [streamText]);
 
     // Watch for streaming completion and parse JSON more defensively.
     React.useEffect(() => {
@@ -252,6 +251,14 @@ export function ContentStructureStreamCard({
                         <div className="mt-4 p-3 bg-green-50 rounded border border-green-200">
                             <div className="text-green-800 text-xs font-medium">
                                 Structure generation completed! {generatedStructure.length} elements ready to save.
+                            </div>
+                        </div>
+                    )}
+
+                    {lastError && !isStreaming && (
+                        <div className="mt-4 p-3 bg-red-50 rounded border border-red-200">
+                            <div className="text-red-800 text-xs font-medium">
+                                Generation failed: {lastError}
                             </div>
                         </div>
                     )}

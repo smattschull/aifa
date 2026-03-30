@@ -92,7 +92,7 @@ function readOptionalStyleFields(section: RootContentStructure): {
 }
 
 function indexSections(
-  sections: SectionInfo[] | undefined
+  sections: SectionInfo[] | undefined,
 ): Map<string, SectionInfo> {
   const map = new Map<string, SectionInfo>();
   (sections ?? []).forEach((s) => {
@@ -103,7 +103,7 @@ function indexSections(
 
 function computeUnlockedIndex(
   roots: RootContentStructure[],
-  byId: Map<string, SectionInfo>
+  byId: Map<string, SectionInfo>,
 ): number {
   let count = 0;
   for (let i = 0; i < roots.length; i += 1) {
@@ -258,28 +258,63 @@ function buildPromptsForIndex(params: {
     "Preserve heading levels and keep consistent formatting.",
   ];
   if (nonEmpty(section.description)) {
-    userLines.push(`Section description: ${section.description!.trim()}`);
+    userLines.push(
+      `Section description: ${
+        // biome-ignore lint/style/noNonNullAssertion: <explanation>
+        section.description!.trim()
+      }`,
+    );
   }
   if (Array.isArray(section.keywords) && section.keywords.length > 0) {
     userLines.push(`Keywords: ${section.keywords.join(", ")}`);
   }
   if (nonEmpty(section.intent)) {
-    userLines.push(`Intent: ${section.intent!.trim()}`);
+    userLines.push(
+      `Intent: ${
+        // biome-ignore lint/style/noNonNullAssertion: <explanation>
+        section.intent!.trim()
+      }`,
+    );
   }
   if (nonEmpty(section.attention)) {
-    userLines.push(`Attention: ${section.attention!.trim()}`);
+    userLines.push(
+      `Attention: ${
+        // biome-ignore lint/style/noNonNullAssertion: <explanation>
+        section.attention!.trim()
+      }`,
+    );
   }
   if (nonEmpty(section.taxonomy)) {
-    userLines.push(`Taxonomy: ${section.taxonomy!.trim()}`);
+    userLines.push(
+      `Taxonomy: ${
+        // biome-ignore lint/style/noNonNullAssertion: <explanation>
+        section.taxonomy!.trim()
+      }`,
+    );
   }
   if (nonEmpty(section.attention)) {
-    userLines.push(`Attention focus: ${section.attention!.trim()}`);
+    userLines.push(
+      `Attention focus: ${
+        // biome-ignore lint/style/noNonNullAssertion: <explanation>
+        section.attention!.trim()
+      }`,
+    );
   }
   if (nonEmpty(section.audiences)) {
-    userLines.push(`Target audiences: ${section.audiences!.trim()}`);
+    userLines.push(
+      `Target audiences: ${
+        // biome-ignore lint/style/noNonNullAssertion: <explanation>
+        section.audiences!.trim()
+      }`,
+    );
   }
   if (nonEmpty(section.selfPrompt)) {
-    userLines.push(`Self Prompt: ${section.selfPrompt!.trim()}`);
+    userLines.push(
+      `Self Prompt: ${
+        // biome-ignore lint/style/noNonNullAssertion: <explanation>
+        section.selfPrompt!.trim()
+      }`,
+    );
   }
 
   return {
@@ -289,7 +324,7 @@ function buildPromptsForIndex(params: {
 }
 
 export async function regenerateAllDrafts(
-  input: RegenerateAllDraftsInput
+  input: RegenerateAllDraftsInput,
 ): Promise<RegenerateAllDraftsResult> {
   const {
     pageId,

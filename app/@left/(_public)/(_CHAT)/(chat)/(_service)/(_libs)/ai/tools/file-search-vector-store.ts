@@ -4,6 +4,7 @@ import { OpenAI } from "openai";
 import { tool } from "ai";
 import { z } from "zod";
 
+// biome-ignore lint/style/noNonNullAssertion: <explanation>
 const vectorStoreId = process.env.OPENAI_API_VECTOR_STORE_ID!;
 
 export const fileSearchVectorStore = tool({
@@ -29,7 +30,7 @@ export const fileSearchVectorStore = tool({
 
       console.log(
         "// @/lib/ai/tools/file-search-vector-store.ts response:",
-        response.output_text ?? ""
+        response.output_text ?? "",
       );
 
       // Возвращаем только текст из output_text

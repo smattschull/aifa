@@ -20,10 +20,35 @@ export type StartStreamingInput = {
 };
 
 export function useStep5Stream() {
+  const responseErrorRef = React.useRef<string | null>(null);
+
   // useCompletion manages an internal POST to the API route (default method)
-  const { completion, isLoading, complete, stop: stopStreaming, error } = useCompletion({
-    api: "/api/step5/generate-structure",
-  });
+  const { completion, isLoading, complete, stop: stopStreaming, error } =
+    useCompletion({
+      api: "/api/step5/generate-structure",
+      onResponse: async (response) => {
+        responseErrorRef.current = null;
+
+        if (response.ok) {
+          return;
+        }
+
+        try {
+          const payload = await response.clone().json();
+          const detailedMessage =
+            payload?.message ||
+            payload?.error ||
+            payload?.details ||
+            `Request failed with status ${response.status}`;
+
+          responseErrorRef.current = String(detailedMessage);
+        } catch {
+          responseErrorRef.current =
+            response.statusText ||
+            `Request failed with status ${response.status}`;
+        }
+      },
+    });
 
   const [lastError, setLastError] = React.useState<string | null>(null);
 
@@ -45,12 +70,15 @@ export function useStep5Stream() {
         description: "Content structure is ready for review and saving.",
       });
     } catch (e: any) {
-      const msg = e?.message ?? "Streaming failed";
+      const msg =
+        responseErrorRef.current ??
+        e?.message ??
+        "Streaming failed";
       setLastError(String(msg));
       
       toast.error("Structure generation failed", {
         id: "step5-stream-error",
-        description: "Failed to generate content structure. Please try again.",
+        description: String(msg),
       });
     } finally {
       toast.dismiss("step5-stream-start");

@@ -40,7 +40,7 @@ import { generateSectionMDX } from "../(_actions)/generate-section-mdx";
 function setStatusFor(
   setMap: React.Dispatch<React.SetStateAction<GenerationStatusBySectionMap>>,
   sectionId: string,
-  status: GenerationStatus
+  status: GenerationStatus,
 ) {
   setMap((prev) => ({ ...prev, [sectionId]: status }));
 }
@@ -65,14 +65,14 @@ export function useStep8Generate() {
       if (!sectionId) return "idle";
       return statusBySection[sectionId] ?? "idle";
     },
-    [statusBySection]
+    [statusBySection],
   );
 
   /** Check if a section is currently generating. */
   const isGenerating = React.useCallback(
     (sectionId: string | null | undefined): boolean =>
       getStatus(sectionId) === "generating",
-    [getStatus]
+    [getStatus],
   );
 
   /** Cancel generation for a specific section (or all if no id provided). */
@@ -211,7 +211,7 @@ export function useStep8Generate() {
         toast.dismiss(STEP8_IDS.toasts.generateStart);
       }
     },
-    [page?.id, canActivateId, buildForSectionId, isGenerating, cancel]
+    [page?.id, canActivateId, buildForSectionId, isGenerating, cancel],
   );
 
   /** Generate MDX for the currently active section. */
