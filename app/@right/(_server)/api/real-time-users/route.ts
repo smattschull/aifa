@@ -1,11 +1,11 @@
 // @/app/@right/admin/(_server)\api/real-time-users/route.ts
 
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { Redis } from "@upstash/redis";
 
 const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+  url: process.env.UPSTASH_REDIS_REST_URL || "",
+  token: process.env.UPSTASH_REDIS_REST_TOKEN || "",
 });
 
 export async function POST(req: NextRequest) {
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
         acc[key] = sessions[idx];
         return acc;
       },
-      {} as Record<string, any>
+      {} as Record<string, any>,
     );
 
     console.log("Active sessions:", activeSessions);
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     console.error("Error in /integrations/api/external/session/test:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -7,9 +7,9 @@ import {
   useState,
   useEffect,
   useCallback,
-  ReactNode,
   useMemo,
 } from "react";
+import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { useLocalStorage } from "usehooks-ts";
 

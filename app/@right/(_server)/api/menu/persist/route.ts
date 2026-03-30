@@ -1,10 +1,10 @@
 // @/app/@right/(_server)/api/menu/persist\route.ts
-import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { type NextRequest, NextResponse } from "next/server";
+import fs from "node:fs";
+import path from "node:path";
 import {
   ErrorCode,
-  MenuPersistResponse,
+  type MenuPersistResponse,
   OperationStatus,
 } from "@/app/@right/(_service)/(_types)/api-response-types";
 
@@ -49,45 +49,41 @@ async function getCurrentFileFromGitHub(): Promise<{
   content: string;
   sha: string;
 } | null> {
-  try {
-    const { GITHUB_TOKEN, GITHUB_REPO } = process.env;
+  const { GITHUB_TOKEN, GITHUB_REPO } = process.env;
 
-    const response = await fetch(
-      `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_RELATIVE_PATH}`,
-      {
-        headers: {
-          Authorization: `Bearer ${GITHUB_TOKEN}`,
-          Accept: "application/vnd.github.v3+json",
-          "User-Agent": "NextJS-App",
-        },
-      }
-    );
+  const response = await fetch(
+    `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_RELATIVE_PATH}`,
+    {
+      headers: {
+        Authorization: `Bearer ${GITHUB_TOKEN}`,
+        Accept: "application/vnd.github.v3+json",
+        "User-Agent": "NextJS-App",
+      },
+    },
+  );
 
-    if (response.status === 404) {
-      return null;
-    }
-
-    if (!response.ok) {
-      throw new Error(
-        `GitHub API error: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const data = await response.json();
-
-    if (data.type !== "file") {
-      throw new Error("GitHub path is not a file");
-    }
-
-    const content = Buffer.from(data.content, "base64").toString("utf-8");
-
-    return {
-      content,
-      sha: data.sha,
-    };
-  } catch (error) {
-    throw error;
+  if (response.status === 404) {
+    return null;
   }
+
+  if (!response.ok) {
+    throw new Error(
+      `GitHub API error: ${response.status} ${response.statusText}`,
+    );
+  }
+
+  const data = await response.json();
+
+  if (data.type !== "file") {
+    throw new Error("GitHub path is not a file");
+  }
+
+  const content = Buffer.from(data.content, "base64").toString("utf-8");
+
+  return {
+    content,
+    sha: data.sha,
+  };
 }
 
 function generateFileContent(categories: any[]): string {
@@ -155,7 +151,7 @@ async function saveToGitHub(categories: any[]): Promise<MenuPersistResponse> {
           "User-Agent": "NextJS-App",
         },
         body: JSON.stringify(apiPayload),
-      }
+      },
     );
 
     if (!response.ok) {
@@ -292,7 +288,7 @@ export async function GET() {
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || "Unknown error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

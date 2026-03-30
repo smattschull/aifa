@@ -1,5 +1,5 @@
 // config/appConfig.ts
-import { AppConfig } from "@/types/app-config";
+import type { AppConfig } from "@/types/app-config";
 
 const site_url = "https://aifa.dev";
 

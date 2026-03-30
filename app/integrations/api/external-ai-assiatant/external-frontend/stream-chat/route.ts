@@ -1,6 +1,6 @@
 // @/app/integrations/api/external-ai-assiatant/external-frontend/stream-chat/route.ts
 
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { verify } from "jsonwebtoken";
 import { getNextAuthUrl } from "@/lib/utils/get-next-auth-url";
 import { generateCuid } from "@/lib/utils/generateCuid";
@@ -57,11 +57,11 @@ function addStreamingCorsHeaders(response: Response): Response {
   response.headers.set("Access-Control-Allow-Origin", "*");
   response.headers.set(
     "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
+    "GET, POST, PUT, DELETE, OPTIONS",
   );
   response.headers.set(
     "Access-Control-Allow-Headers",
-    "Content-Type, Authorization, X-Requested-With"
+    "Content-Type, Authorization, X-Requested-With",
   );
   response.headers.set("Access-Control-Allow-Credentials", "true");
   response.headers.set("Access-Control-Max-Age", "86400");
@@ -129,18 +129,19 @@ export async function POST(req: NextRequest) {
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     const response = NextResponse.json(
       { error: "Missing or invalid Authorization header" },
-      { status: 401 }
+      { status: 401 },
     );
     return addStreamingCorsHeaders(response);
   }
   const token = authHeader.replace("Bearer ", "").trim();
 
   try {
+    // biome-ignore lint/style/noNonNullAssertion: <explanation>
     verify(token, process.env.NEXTAUTH_SECRET!);
   } catch (e) {
     const response = NextResponse.json(
       { error: "Invalid or expired token" },
-      { status: 401 }
+      { status: 401 },
     );
     return addStreamingCorsHeaders(response);
   }
@@ -152,7 +153,7 @@ export async function POST(req: NextRequest) {
   } catch (e) {
     const response = NextResponse.json(
       { error: "Invalid JSON format" },
-      { status: 400 }
+      { status: 400 },
     );
     return addStreamingCorsHeaders(response);
   }
@@ -160,7 +161,7 @@ export async function POST(req: NextRequest) {
   if (!externalBody.chat_id || !externalBody.text) {
     const response = NextResponse.json(
       { error: "Missing required fields: chat_id and text" },
-      { status: 400 }
+      { status: 400 },
     );
     return addStreamingCorsHeaders(response);
   }
@@ -200,7 +201,7 @@ export async function POST(req: NextRequest) {
       } catch (parseError) {
         const response = NextResponse.json(
           { error: "Internal server error" },
-          { status: 500 }
+          { status: 500 },
         );
         return addStreamingCorsHeaders(response);
       }
@@ -211,16 +212,17 @@ export async function POST(req: NextRequest) {
     // Handle non-streaming JSON
     if (contentType?.includes("application/json")) {
       const data = await chatApiRes.json();
+      // biome-ignore lint/complexity/useOptionalChain: <explanation>
       if (data.message && data.message.parts) {
         const transformedMessage = await transformTextToStreamingMessage(
-          JSON.stringify(data)
+          JSON.stringify(data),
         );
         if (transformedMessage) {
           const encoder = new TextEncoder();
           const stream = new ReadableStream({
             start(controller) {
               controller.enqueue(
-                encoder.encode(createSSEMessage(transformedMessage))
+                encoder.encode(createSSEMessage(transformedMessage)),
               );
               controller.close();
             },
@@ -240,7 +242,7 @@ export async function POST(req: NextRequest) {
     const encoder = new TextEncoder();
     let accumulatedText = "";
     let messageId = generateCuid();
-    let createdAt = new Date().toISOString();
+    const createdAt = new Date().toISOString();
     let isFirstChunk = true;
     let chunkCount = 0;
     let isStreamComplete = false;
@@ -347,7 +349,7 @@ export async function POST(req: NextRequest) {
             details: error instanceof Error ? error.message : "Unknown error",
           };
           controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify(errorMessage)}\n\n`)
+            encoder.encode(`data: ${JSON.stringify(errorMessage)}\n\n`),
           );
           controller.close();
         } finally {
@@ -363,7 +365,7 @@ export async function POST(req: NextRequest) {
         error: "Internal server error",
         details: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 }
+      { status: 500 },
     );
     return addStreamingCorsHeaders(response);
   }

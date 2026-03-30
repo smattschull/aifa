@@ -1,6 +1,7 @@
 // app/api/vercel/deploy/route.ts
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import { Vercel } from "@vercel/sdk";
 
 interface VercelDeploymentResponse {
@@ -45,7 +46,7 @@ export async function POST(): Promise<
             hasGithubRepo: !!githubRepo,
           },
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -58,7 +59,7 @@ export async function POST(): Promise<
           error: 'Invalid GITHUB_REPO format. Expected "owner/repo-name"',
           details: { githubRepo },
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -82,7 +83,6 @@ export async function POST(): Promise<
           org: org,
           ref: "main",
         },
-      
       },
     });
 
@@ -123,13 +123,13 @@ export async function POST(): Promise<
         error: errorMessage,
         details: errorDetails,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function GET(
-  request: NextRequest
+  request: NextRequest,
 ): Promise<
   NextResponse<DeploymentStatusResponse | { error: string; details?: any }>
 > {
@@ -140,14 +140,14 @@ export async function GET(
     if (!deploymentId) {
       return NextResponse.json(
         { error: "deploymentId parameter is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!process.env.VERCEL_TOKEN) {
       return NextResponse.json(
         { error: "VERCEL_TOKEN environment variable is missing" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -165,7 +165,7 @@ export async function GET(
     });
 
     const isComplete = ["READY", "ERROR", "CANCELED"].includes(
-      deployment.readyState || ""
+      deployment.readyState || "",
     );
 
     console.log("Deployment status retrieved:", {
@@ -202,7 +202,7 @@ export async function GET(
         error: errorMessage,
         details: errorDetails,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

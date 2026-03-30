@@ -3,8 +3,8 @@
 "use client";
 
 import React, { createRef, useEffect, useRef } from "react";
-import { ExtendedSection } from "../../(_types)/section-types";
-import { TipTapNode, TipTapDocument } from "./types";
+import type { ExtendedSection } from "../../(_types)/section-types";
+import type { TipTapNode, TipTapDocument } from "./types";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppContext } from "@/contexts/app-context";
 import { useRightSidebar } from "@/contexts/right-sidebar-context";
