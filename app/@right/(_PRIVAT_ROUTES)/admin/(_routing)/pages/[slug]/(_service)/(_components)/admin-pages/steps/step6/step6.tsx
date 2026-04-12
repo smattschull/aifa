@@ -56,7 +56,7 @@ import { PageNotFound } from "../../../page-not-found";
 import { useDraftStructureSaver } from "./(_hooks)/use-draft-structure-saver";
 import { useContentRepair } from "./(_hooks)/use-content-repair";
 import { ContentRepairTool } from "./(_components)/content-repair-tool";
-import { ContentStructure } from "@/app/@right/(_service)/(_types)/page-types";
+import type { ContentStructure } from "@/app/@right/(_service)/(_types)/page-types";
 import { ValidationTipsWarning } from "./(_components)/validation-tips-warning";
 import { RepairLimitationsError } from "./(_components)/repair-limitations-error";
 
@@ -528,8 +528,12 @@ export function AdminPageStep6({ slug }: AdminPageStep6Props) {
         />
       )}
 
-      <ValidationTipsWarning />
-      <RepairLimitationsError />
+      {hasValidationError && (
+        <>
+          <ValidationTipsWarning />
+          <RepairLimitationsError />
+        </>
+      )}
     </div>
   );
 }
