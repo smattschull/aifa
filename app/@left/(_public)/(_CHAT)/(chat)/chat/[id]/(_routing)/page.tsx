@@ -7,15 +7,17 @@ import { Chat } from "@/app/@left/(_public)/(_CHAT)/(chat)/(_service)/(_componen
 import { DataStreamHandler } from "@/app/@left/(_public)/(_CHAT)/(chat)/(_service)/(_components)/data-stream-handler";
 import { DEFAULT_CHAT_MODEL } from "@/app/@left/(_public)/(_CHAT)/(chat)/(_service)/(_libs)/ai/models";
 import type { Attachment, UIMessage } from "ai";
-import { VisibilityType } from "@/app/@left/(_public)/(_CHAT)/(chat)/(_service)/(_components)/visibility-selector";
-import { Message, Visibility } from "@prisma/client";
+import type { VisibilityType } from "@/app/@left/(_public)/(_CHAT)/(chat)/(_service)/(_components)/visibility-selector";
+import { type Message, Visibility } from "@prisma/client";
 import { getChatById } from "../../../(_service)/(_db-queries)/chat/queries";
 import { getMessagesByChatId } from "../../../(_service)/(_db-queries)/message/queries";
 import { auth } from "@/app/@left/(_public)/(_AUTH)/(_service)/(_actions)/auth";
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
+  // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
   let chat;
   let messagesFromDb: Message[] = [];
+  // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
   let session;
 
   try {
@@ -48,6 +50,12 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     // Получаем сообщения
     messagesFromDb = await getMessagesByChatId(id);
   } catch (error) {
+    // If React throws the special postpone object to bail out of prerendering,
+    // re-throw it so Next.js can handle Partial Prerendering correctly.
+    if (error && typeof error === "object" && (error as any).$$typeof) {
+      throw error;
+    }
+
     // Логируем ошибку для отладки (можно убрать на проде)
     console.error("Error in chat page:", error);
     // Можно показать свою страницу ошибки или скрыть детали
