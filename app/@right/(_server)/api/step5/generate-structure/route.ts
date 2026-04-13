@@ -9,8 +9,8 @@
 import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 
-// Optional: extend streaming time on Vercel
-export const maxDuration = 300000;
+// Optional: maximum execution time on Vercel (seconds). Hobby plan requires 1-300.
+export const maxDuration = 300;
 
 function getReadableErrorMessage(error: unknown): string {
   if (error instanceof Error) {
