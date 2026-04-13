@@ -1,12 +1,7 @@
 // @/app/@right/admin/(_server)\api/real-time-users/route.ts
 
 import { type NextRequest, NextResponse } from "next/server";
-import { Redis } from "@upstash/redis";
-
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL || "",
-  token: process.env.UPSTASH_REDIS_REST_TOKEN || "",
-});
+import redis from "@/lib/utils/redis";
 
 export async function POST(req: NextRequest) {
   try {
