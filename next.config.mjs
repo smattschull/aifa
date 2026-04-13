@@ -19,6 +19,8 @@ const pwaConfig = withPWA({
 /** @type {import('next').NextConfig} */
 // This is your original configuration from the next.config.ts file.
 const isImageOptimizationOn = process.env.IMAGE_OPTIMIZATION_ON === 'true';
+const enablePpr = process.env.NEXT_EXPERIMENTAL_PPR === 'true';
+
 const nextConfig = {
   // Skip ESLint checks during production builds to avoid failing the build
   // when many existing warnings/errors are present. Address lint issues
@@ -26,9 +28,9 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  experimental: {
-    ppr: true, // Enables Partial Prerendering (PPR).
-  },
+  // Only enable Partial Prerendering when explicitly requested via
+  // `NEXT_EXPERIMENTAL_PPR=true` to avoid requiring a specific Next.js canary.
+  experimental: enablePpr ? { ppr: true } : {},
   images: {
     remotePatterns: [
       {
