@@ -3,13 +3,14 @@
 
 import type { Attachment, UIMessage } from "ai";
 import { useChat } from "@ai-sdk/react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { ChatHeader } from "@/app/@left/(_public)/(_CHAT)/(chat)/(_service)/(_components)/chat-header";
 import { fetcher } from "@/lib/utils";
 import { Artifact } from "./artifact";
 import { MultimodalInput } from "./multimodal-input";
 import { Messages } from "./messages";
+import { WebsitePreview } from "@/components/website-preview";
 import type { VisibilityType } from "./visibility-selector";
 import { useArtifactSelector } from "@/app/@left/(_public)/(_CHAT)/(chat)/(_service)/(_hooks)/use-artifact";
 import { unstable_serialize } from "swr/infinite";
@@ -19,8 +20,9 @@ import type { Session } from "next-auth";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useChatVisibility } from "@/app/@left/(_public)/(_CHAT)/(chat)/(_service)/(_hooks)/use-chat-visibility";
 import { useAutoResume } from "@/app/@left/(_public)/(_CHAT)/(chat)/(_service)/(_hooks)/use-auto-resume";
-import { Vote } from "@prisma/client";
+import type { Vote } from "@prisma/client";
 import { generateCuid } from "@/lib/utils/generateCuid";
+import { useWebsiteGenerator } from "@/hooks/use-website-generator";
 
 export function Chat({
   id,
@@ -45,6 +47,12 @@ export function Chat({
     initialVisibilityType,
   });
   const router = useRouter();
+  const {
+    generateWebsite,
+    generatedCode,
+    isGenerating,
+    error: websiteGenerationError,
+  } = useWebsiteGenerator();
   const {
     messages,
     setMessages,
@@ -74,7 +82,7 @@ export function Chat({
     },
     onError: (error) => {
       let redirectTo: string | undefined;
-      let delay: number = 3000;
+      let delay = 3000;
 
       try {
         const data = JSON.parse(error.message);
@@ -91,7 +99,7 @@ export function Chat({
 
       if (redirectTo) {
         setTimeout(() => {
-          router.push(redirectTo!);
+          router.push(redirectTo);
         }, delay);
       }
     },
@@ -134,6 +142,41 @@ export function Chat({
     console.log("essages in chat txt ", messages);
   }, [messages]);
 
+  const handleChatSubmit = useCallback<typeof handleSubmit>(
+    async (event, options) => {
+      const userMessage = input.trim();
+
+      if (!userMessage.toLowerCase().startsWith("generate:")) {
+        return handleSubmit(event, options);
+      }
+
+      event?.preventDefault?.();
+
+      const description = userMessage.replace(/^generate:/i, "").trim();
+
+      if (!description) {
+        toast({
+          type: "error",
+          description: 'Add a description after "generate:" to create a website.',
+        });
+        return;
+      }
+
+      setMessages((currentMessages) => [
+        ...currentMessages,
+        {
+          id: generateCuid(),
+          role: "user",
+          parts: [{ type: "text", text: userMessage }],
+        } as UIMessage,
+      ]);
+
+      setInput("");
+      await generateWebsite(description);
+    },
+    [generateWebsite, handleSubmit, input, setInput, setMessages]
+  );
+
   return (
     <>
       <div className="flex flex-col min-w-0 h-dvh bg-background">
@@ -156,13 +199,32 @@ export function Chat({
           isArtifactVisible={isArtifactVisible}
         />
 
+        {(isGenerating || generatedCode || websiteGenerationError) && (
+          <div className="mx-auto w-full px-4 pb-4 md:max-w-3xl">
+            <div className="overflow-hidden rounded-3xl border border-border/70 bg-card shadow-sm">
+              <div className="border-b border-border/70 px-4 py-3">
+                <p className="text-sm font-medium text-foreground">
+                  Website Preview
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Messages starting with <code>generate:</code> render here.
+                </p>
+              </div>
+
+              <div className="h-[28rem]">
+                <WebsitePreview code={generatedCode} isLoading={isGenerating} />
+              </div>
+            </div>
+          </div>
+        )}
+
         <form className="flex mx-auto px-4 bg-background pb-4 md:pb-6 gap-2 w-full md:max-w-3xl">
           {!isReadonly && (
             <MultimodalInput
               chatId={id}
               input={input}
               setInput={setInput}
-              handleSubmit={handleSubmit}
+              handleSubmit={handleChatSubmit}
               status={status}
               stop={stop}
               attachments={attachments}
@@ -180,7 +242,7 @@ export function Chat({
         chatId={id}
         input={input}
         setInput={setInput}
-        handleSubmit={handleSubmit}
+        handleSubmit={handleChatSubmit}
         status={status}
         stop={stop}
         attachments={attachments}
