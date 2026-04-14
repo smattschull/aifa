@@ -1,4 +1,4 @@
-import { RootContentStructure } from "@/app/@right/(_service)/(_types)/page-types";
+import type { RootContentStructure } from "@/app/@right/(_service)/(_types)/page-types";
 
 /**
  * Enhanced realistic content structure template with all empty fields for system instruction completion

@@ -15,7 +15,7 @@ import { CheckCircle, Circle, Lock } from "lucide-react";
 import { useAdminPagesNav } from "../(_context)/admin-pages-nav-context";
 import {
   ADMIN_PAGES_TABS,
-  AdminPageTabConfig,
+  type AdminPageTabConfig,
 } from "../(_config)/admin-pages-config";
 
 interface StepActivationCardProps {
@@ -126,13 +126,12 @@ export function StepActivationCard({ stepKey }: StepActivationCardProps) {
         <div className="flex items-center justify-center space-x-2 text-sm">
           <span className="text-muted-foreground">Indicator status:</span>
           <div
-            className={`size-3 rounded-full ${
-              indicatorStatus === "green"
+            className={`size-3 rounded-full ${indicatorStatus === "green"
                 ? "bg-green-500"
                 : indicatorStatus === "orange"
                   ? "bg-orange-500"
                   : "bg-gray-400"
-            }`}
+              }`}
           />
           <span className="capitalize font-medium">
             {indicatorStatus === "green"

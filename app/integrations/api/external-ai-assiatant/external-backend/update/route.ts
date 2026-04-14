@@ -1,16 +1,13 @@
 // @/app/integrations/api/external/session/update/route.ts
 
-import { NextRequest } from "next/server";
-import { Redis } from "@upstash/redis";
+import type { NextRequest } from "next/server";
+import redis from "@/lib/utils/redis";
 import { apiResponse } from "@/app/integrations/lib/api/response";
 import { UpdateSessionSchema } from "../../_types/session";
 import { prisma } from "@/lib/db";
 import { createId } from "@paralleldrive/cuid2";
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
+// `redis` imported from lib/utils/redis provides a safe fallback when env vars are missing.
 
 const SESSION_TTL_SECONDS = 60 * 60 * 4;
 
@@ -137,7 +134,7 @@ export async function POST(req: NextRequest) {
 
     // Логируем успешное выполнение для отладки
     console.log(
-      `Session updated successfully. MessageCreated: ${messageCreated}, EventsProcessed: ${events?.length || 0}`
+      `Session updated successfully. MessageCreated: ${messageCreated}, EventsProcessed: ${events?.length || 0}`,
     );
 
     // ОБНОВЛЕННЫЙ ОТВЕТ: соответствует документации

@@ -33,7 +33,7 @@ import { after, NextResponse } from "next/server";
 import { differenceInSeconds } from "date-fns";
 import { prisma } from "@/lib/db";
 
-import { Chat, Message, Prisma, UserType } from "@prisma/client";
+import type { Chat, Message, Prisma } from "@prisma/client";
 import { generateCuid } from "@/lib/utils/generateCuid";
 import { extractSubFromJWT } from "@/lib/utils/extract-sub-from-jwt";
 
@@ -52,7 +52,7 @@ function logTokenUsage(
   prefix: string,
   usage: any,
   chatId?: string,
-  userId?: string
+  userId?: string,
 ) {
   if (!usage) {
     console.log(`${prefix} - Token usage data not available`);
@@ -66,7 +66,7 @@ function logTokenUsage(
   console.log(`👤 User ID: ${userId || "unknown"}`);
   console.log(`📥 Input tokens (Prompt): ${promptTokens ?? "unknown"}`);
   console.log(
-    `📤 Output tokens (Completion): ${completionTokens ?? "unknown"}`
+    `📤 Output tokens (Completion): ${completionTokens ?? "unknown"}`,
   );
   console.log(`🔄 Total tokens: ${totalTokens ?? "unknown"}`);
 
@@ -77,7 +77,7 @@ function logTokenUsage(
     const totalCost = inputCost + outputCost;
 
     console.log(
-      `💰 GPT-4 Mini cost: $${totalCost.toFixed(8)} (Input: $${inputCost.toFixed(8)}, Output: $${outputCost.toFixed(8)})`
+      `💰 GPT-4 Mini cost: $${totalCost.toFixed(8)} (Input: $${inputCost.toFixed(8)}, Output: $${outputCost.toFixed(8)})`,
     );
 
     // Additionally show cost in cents for clarity
@@ -99,7 +99,7 @@ function getStreamContext() {
     } catch (error: any) {
       if (error.message.includes("REDIS_URL")) {
         console.log(
-          " > Resumable streams are disabled due to missing REDIS_URL"
+          " > Resumable streams are disabled due to missing REDIS_URL",
         );
       } else {
         console.error(error);
@@ -135,7 +135,7 @@ export async function POST(request: Request) {
 
     let session = await auth();
 
-    let token = request.headers.get("authorization");
+    const token = request.headers.get("authorization");
     const expires = new Date(Date.now() + 60 * 60 * 4000).toISOString();
 
     if (!session && token) {
@@ -179,7 +179,7 @@ export async function POST(request: Request) {
           redirectTo: "/register",
           delay: 3000,
         },
-        { status: 429 }
+        { status: 429 },
       );
     }
 
@@ -187,11 +187,11 @@ export async function POST(request: Request) {
     let chat = await prisma.chat.findUnique({ where: { id: chatId } });
     console.log(
       "console: // @/app/@left/(chat)/api/chat/route.ts chat:  ",
-      chat
+      chat,
     );
     console.log(
       "console: // @/app/@left/(chat)/api/chat/route.ts message:  ",
-      message
+      message,
     );
     if (!chat) {
       // Create new chat with title generated from first user message
@@ -207,7 +207,7 @@ export async function POST(request: Request) {
       });
       console.log(
         "console: // @/app/@left/(chat)/api/chat/route.ts chat:  ",
-        chat
+        chat,
       );
     } else {
       // Prevent users from accessing others' chats
@@ -230,7 +230,7 @@ export async function POST(request: Request) {
         parts,
         experimental_attachments: attachments,
         createdAt,
-      })
+      }),
     );
     // Append new user message to list for AI input
     const messages = appendClientMessage({
@@ -287,7 +287,7 @@ export async function POST(request: Request) {
             try {
               const assistantId = getTrailingMessageId({
                 messages: response.messages.filter(
-                  (m) => m.role === "assistant"
+                  (m) => m.role === "assistant",
                 ),
               });
               if (!assistantId) throw new Error("No assistant message found!");
@@ -313,14 +313,14 @@ export async function POST(request: Request) {
 
               // Additional logging for successful message saving
               console.log(
-                `✅ Assistant message saved successfully for chat ${chatId}`
+                `✅ Assistant message saved successfully for chat ${chatId}`,
               );
             } catch (error) {
               console.error("Failed to save assistant message:", error);
 
               // Error logging with context
               console.error(
-                `❌ Error context - Chat ID: ${chatId}, User ID: ${userId}`
+                `❌ Error context - Chat ID: ${chatId}, User ID: ${userId}`,
               );
             }
           },
@@ -340,7 +340,7 @@ export async function POST(request: Request) {
     const streamContext = getStreamContext();
     if (streamContext) {
       return new Response(
-        await streamContext.resumableStream(streamId, () => stream)
+        await streamContext.resumableStream(streamId, () => stream),
       );
     }
 
@@ -413,7 +413,7 @@ export async function GET(request: Request) {
   // Try to get resumable stream from stored context
   const stream = await streamContext.resumableStream(
     recentStreamId,
-    () => emptyDataStream
+    () => emptyDataStream,
   );
 
   if (!stream) {

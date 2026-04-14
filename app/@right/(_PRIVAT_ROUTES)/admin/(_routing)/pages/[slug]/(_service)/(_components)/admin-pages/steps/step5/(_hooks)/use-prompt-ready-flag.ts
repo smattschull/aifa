@@ -5,7 +5,7 @@
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { useNavigationMenu } from "@/app/@right/(_service)/(_context)/nav-bar-provider";
-import { PageData } from "@/app/@right/(_service)/(_types)/page-types";
+import type { PageData } from "@/app/@right/(_service)/(_types)/page-types";
 
 /**
  * Props for usePromptReadyFlag hook
@@ -41,6 +41,7 @@ export function usePromptReadyFlag({
   const [isUpdating, setIsUpdating] = useState(false);
 
   // Check if page is valid for operations
+  // biome-ignore lint/complexity/useOptionalChain: <explanation>
   const isPageValid = Boolean(page && page.id);
   const isPromptReady = Boolean(page?.isReadyPromptForPerplexity);
   const canUpdate = !isUpdating && isPageValid;
@@ -83,10 +84,10 @@ export function usePromptReadyFlag({
             : {
                 ...cat,
                 pages: cat.pages.map((p) =>
-                  p.id !== page.id ? p : updatedPage
+                  p.id !== page.id ? p : updatedPage,
                 ),
-              }
-        )
+              },
+        ),
       );
 
       // Sync with server
@@ -106,14 +107,14 @@ export function usePromptReadyFlag({
                       : {
                           ...p,
                           isReadyPromptForPerplexity: false,
-                        }
+                        },
                   ),
-                }
-          )
+                },
+          ),
         );
 
         toast.error(
-          `Failed to mark prompt as ready: ${updateError.userMessage}`
+          `Failed to mark prompt as ready: ${updateError.userMessage}`,
         );
         console.error("Failed to mark prompt as ready:", updateError);
         return false;
@@ -139,10 +140,10 @@ export function usePromptReadyFlag({
                     : {
                         ...p,
                         isReadyPromptForPerplexity: false,
-                      }
+                      },
                 ),
-              }
-        )
+              },
+        ),
       );
 
       toast.error("Unexpected error marking prompt as ready");
@@ -198,10 +199,10 @@ export function usePromptReadyFlag({
             : {
                 ...cat,
                 pages: cat.pages.map((p) =>
-                  p.id !== page.id ? p : updatedPage
+                  p.id !== page.id ? p : updatedPage,
                 ),
-              }
-        )
+              },
+        ),
       );
 
       // Sync with server
@@ -221,10 +222,10 @@ export function usePromptReadyFlag({
                       : {
                           ...p,
                           isReadyPromptForPerplexity: true,
-                        }
+                        },
                   ),
-                }
-          )
+                },
+          ),
         );
 
         toast.error(`Failed to unmark prompt: ${updateError.userMessage}`);
@@ -249,10 +250,10 @@ export function usePromptReadyFlag({
                     : {
                         ...p,
                         isReadyPromptForPerplexity: true,
-                      }
+                      },
                 ),
-              }
-        )
+              },
+        ),
       );
 
       toast.error("Unexpected error unmarking prompt");

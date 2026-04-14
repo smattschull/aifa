@@ -1,8 +1,8 @@
 // @/app/integrations/api/external-ai-assiatant/external-backend/start/route.ts
 
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { getNextAuthUrl } from "@/lib/utils/get-next-auth-url";
-import { Redis } from "@upstash/redis";
+import redis from "@/lib/utils/redis";
 import { StartSessionSchema } from "../../_types/session";
 import { apiResponse } from "@/app/integrations/lib/api/response";
 import { createId } from "@paralleldrive/cuid2";
@@ -19,10 +19,7 @@ import { analyzeTagPreferences } from "../../utils/analyze-tag-preferences";
 import { Message, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
+// `redis` imported from lib/utils/redis provides a safe fallback when env vars are missing.
 
 const SESSION_TTL_SECONDS = 60 * 60 * 4;
 
@@ -83,7 +80,7 @@ export async function POST(req: NextRequest) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id, name }),
-      }
+      },
     );
 
     if (!nextAuthRes.ok) {
@@ -114,7 +111,7 @@ export async function POST(req: NextRequest) {
           (error) => {
             console.error("Purchase preferences analysis failed:", error);
             return "";
-          }
+          },
         ),
 
         // Анализ предпочтений по тегам - передаем available_products
@@ -122,7 +119,7 @@ export async function POST(req: NextRequest) {
           (error) => {
             console.error("Tag preferences analysis failed:", error);
             return "";
-          }
+          },
         ),
 
         // Создание актуального меню - КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: передаем available_products

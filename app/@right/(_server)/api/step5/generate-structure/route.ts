@@ -2,19 +2,38 @@
 /**
  * Streaming endpoint for Step 5 content structure generation - AI SDK v4.
  * Returns a Data Stream response that the v4 client hooks can consume incrementally.
- * 
+ *
  * Body: { system: string, prompt: string, model?: string }
  */
 
 import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 
-// Optional: extend streaming time on Vercel
+// Optional: maximum execution time on Vercel (seconds). Hobby plan requires 1-300.
 export const maxDuration = 300;
+
+function getReadableErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (typeof error === "string") {
+    return error;
+  }
+
+  if (error && typeof error === "object") {
+    const maybeMessage = (error as Record<string, unknown>).message;
+    if (typeof maybeMessage === "string" && maybeMessage.trim().length > 0) {
+      return maybeMessage;
+    }
+  }
+
+  return "Unknown server error";
+}
 
 export async function POST(req: Request) {
   try {
-    const { system, prompt, model } = await req.json() as {
+    const { system, prompt, model } = (await req.json()) as {
       system: string;
       prompt: string;
       model?: string;
@@ -22,33 +41,42 @@ export async function POST(req: Request) {
 
     // Validation
     if (!system || typeof system !== "string") {
-      return new Response(JSON.stringify({
-        error: "System instruction is required and must be a string",
-        received: { system: typeof system, length: system?.length },
-      }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({
+          error: "System instruction is required and must be a string",
+          received: { system: typeof system, length: system?.length },
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
     }
 
     if (!prompt || typeof prompt !== "string") {
-      return new Response(JSON.stringify({
-        error: "Prompt is required and must be a string", 
-        received: { prompt: typeof prompt, length: prompt?.length },
-      }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({
+          error: "Prompt is required and must be a string",
+          received: { prompt: typeof prompt, length: prompt?.length },
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
     }
 
     if (system.length < 10) {
-      return new Response(JSON.stringify({
-        error: "System instruction is too short (minimum 10 characters)",
-        length: system.length,
-      }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({
+          error: "System instruction is too short (minimum 10 characters)",
+          length: system.length,
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
     }
 
     // Stream content structure generation
@@ -61,8 +89,9 @@ export async function POST(req: Request) {
     });
 
     // AI SDK v4: use Data Stream helper
-    return result.toDataStreamResponse();
-    
+    return result.toDataStreamResponse({
+      getErrorMessage: getReadableErrorMessage,
+    });
   } catch (error: unknown) {
     let errorMessage = "Unknown server error";
     let errorDetails = "No additional details available";
@@ -79,14 +108,17 @@ export async function POST(req: Request) {
       errorDetails = JSON.stringify(error);
     }
 
-    return new Response(JSON.stringify({
-      error: "Step5 API failed",
-      message: errorMessage,
-      details: errorDetails,
-      timestamp: new Date().toISOString(),
-    }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({
+        error: "Step5 API failed",
+        message: errorMessage,
+        details: errorDetails,
+        timestamp: new Date().toISOString(),
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   }
 }

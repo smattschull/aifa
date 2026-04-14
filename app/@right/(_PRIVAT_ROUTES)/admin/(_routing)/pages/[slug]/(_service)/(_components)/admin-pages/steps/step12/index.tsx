@@ -9,9 +9,9 @@ import React from "react";
 import { useNavigationMenu } from "@/app/@right/(_service)/(_context)/nav-bar-provider";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { useSession } from "next-auth/react";
-import { UserType } from "@prisma/client";
+import type { UserType } from "@prisma/client";
 import { PageNotFound } from "../../../page-not-found";
-import { AdminPageInfoProps } from "../../../../(_config)/(_types)/admin-page-sections-types";
+import type { AdminPageInfoProps } from "../../../../(_config)/(_types)/admin-page-sections-types";
 import { findPageBySlug } from "../../../../(_utils)/page-helpers";
 
 // Local fractal routes
@@ -45,7 +45,7 @@ export function AdminPageStep12({ slug }: AdminPageInfoProps) {
   }
 
   // Normalize shape to PageData
-  let page = (typeof searchResult === "object" && "page" in searchResult)
+  const page = (typeof searchResult === "object" && "page" in searchResult)
     ? (searchResult as any).page
     : searchResult;
 

@@ -1,15 +1,22 @@
 // Main API route handler for page upload operations
 // Production-critical module - consolidated from decomposed services
 
-import { NextRequest, NextResponse } from "next/server";
-import { existsSync } from "fs";
-import { join } from "path";
-import type { PageUploadPayload, ExtendedSection } from "@/app/@right/(_service)/(_types)/section-types";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import type {
+  PageUploadPayload,
+  ExtendedSection,
+} from "@/app/@right/(_service)/(_types)/section-types";
 
 // Import decomposed services
-import { saveToGitHub, type PageUploadResponse, ErrorCode } from "@/app/@right/(_PRIVAT_ROUTES)/admin/(_routing)/pages/[slug]/(_service)/(_components)/admin-pages/steps/step12/(_utils)/github-service";
+import {
+  saveToGitHub,
+  type PageUploadResponse,
+  ErrorCode,
+} from "@/app/@right/(_PRIVAT_ROUTES)/admin/(_routing)/pages/[slug]/(_service)/(_components)/admin-pages/steps/step12/(_utils)/github-service";
 import { saveToFileSystem } from "@/app/@right/(_PRIVAT_ROUTES)/admin/(_routing)/pages/[slug]/(_service)/(_components)/admin-pages/steps/step12/(_utils)/filesystem-service";
-
 
 /**
  * Checks if current environment is production
@@ -33,7 +40,7 @@ function parseHref(href: string): {
 
   if (parts.length < 2) {
     throw new Error(
-      `Invalid href format. Expected format: "/firstPart/secondPart", got: "${href}"`
+      `Invalid href format. Expected format: "/firstPart/secondPart", got: "${href}"`,
     );
   }
 
@@ -70,7 +77,7 @@ function validateRequestBody(body: any): body is PageUploadPayload {
   const hrefRegex = /^\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+$/;
   if (!hrefRegex.test(href)) {
     throw new Error(
-      'href must match format "/category/subcategory" with only letters, numbers, hyphens, and underscores'
+      'href must match format "/category/subcategory" with only letters, numbers, hyphens, and underscores',
     );
   }
 
@@ -96,7 +103,7 @@ function validateSafeName(name: string, fieldName: string): void {
   const safeNameRegex = /^[a-zA-Z0-9_-]+$/;
   if (!safeNameRegex.test(name)) {
     throw new Error(
-      `${fieldName} contains invalid characters. Only letters, numbers, hyphens, and underscores are allowed`
+      `${fieldName} contains invalid characters. Only letters, numbers, hyphens, and underscores are allowed`,
     );
   }
 }
@@ -106,10 +113,10 @@ function validateSafeName(name: string, fieldName: string): void {
  * Routes to appropriate service based on environment
  */
 export async function POST(
-  request: NextRequest
+  request: NextRequest,
 ): Promise<NextResponse<PageUploadResponse>> {
   try {
-    let body;
+    let body: any;
     let rawBody: string;
 
     try {
@@ -120,11 +127,12 @@ export async function POST(
         {
           success: false,
           message: "Invalid JSON in request body",
-          error: error instanceof Error ? error.message : "Unknown parsing error",
+          error:
+            error instanceof Error ? error.message : "Unknown parsing error",
           errorCode: ErrorCode.INVALID_DATA_FORMAT,
           environment: isProduction() ? "production" : "development",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -138,7 +146,7 @@ export async function POST(
           errorCode: ErrorCode.VALIDATION_ERROR,
           environment: isProduction() ? "production" : "development",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -156,11 +164,12 @@ export async function POST(
       return NextResponse.json(
         {
           success: false,
-          message: error instanceof Error ? error.message : "Invalid href format",
+          message:
+            error instanceof Error ? error.message : "Invalid href format",
           errorCode: ErrorCode.INVALID_DATA_FORMAT,
           environment: isProduction() ? "production" : "development",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -171,11 +180,12 @@ export async function POST(
       return NextResponse.json(
         {
           success: false,
-          message: error instanceof Error ? error.message : "Invalid name format",
+          message:
+            error instanceof Error ? error.message : "Invalid name format",
           errorCode: ErrorCode.INVALID_DATA_FORMAT,
           environment: isProduction() ? "production" : "development",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -221,7 +231,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           message: "href parameter is required",
           environment: isProduction() ? "production" : "development",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -240,7 +250,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         "@right",
         "(_PAGES)",
         firstPartHref,
-        secondPartHref
+        secondPartHref,
       );
 
       return NextResponse.json({
@@ -257,7 +267,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         message: error.message || "Internal server error",
         environment: isProduction() ? "production" : "development",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

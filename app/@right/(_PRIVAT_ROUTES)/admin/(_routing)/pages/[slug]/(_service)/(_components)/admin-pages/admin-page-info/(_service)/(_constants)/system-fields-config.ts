@@ -10,7 +10,7 @@ import {
   Type,
   type LucideIcon,
 } from "lucide-react";
-import {
+import type {
   SystemFieldConfig,
   EditableSystemField,
   KeywordsFieldConfig,
@@ -313,7 +313,7 @@ export const isFieldRequired = (field: EditableSystemField): boolean => {
  * Helper function to get appropriate input component type
  */
 export const getFieldInputType = (
-  field: EditableSystemField
+  field: EditableSystemField,
 ): "input" | "textarea" => {
   return SYSTEM_FIELDS_CONFIG[field].fieldType;
 };

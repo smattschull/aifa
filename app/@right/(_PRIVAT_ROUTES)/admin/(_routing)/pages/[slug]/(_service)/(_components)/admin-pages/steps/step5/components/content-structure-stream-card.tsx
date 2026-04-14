@@ -15,7 +15,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { CheckCircle, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { useStep5Save } from "../(_hooks)/use-step5-save";
-import { RootContentStructure } from "@/app/@right/(_service)/(_types)/page-types";
+import type { RootContentStructure } from "@/app/@right/(_service)/(_types)/page-types";
 import { useStep5Stream } from "../(_hooks)/use-step5-stream";
 
 interface ContentStructureStreamCardProps {
@@ -24,13 +24,53 @@ interface ContentStructureStreamCardProps {
     onStreamCompleted?: (structure: RootContentStructure[]) => void;
 }
 
+function extractJsonCandidate(text: string): string | null {
+    const trimmed = text.trim();
+    if (!trimmed) {
+        return null;
+    }
+
+    const fencedBlockMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
+    if (fencedBlockMatch?.[1]) {
+        return fencedBlockMatch[1].trim();
+    }
+
+    const firstArrayIndex = trimmed.indexOf("[");
+    const lastArrayIndex = trimmed.lastIndexOf("]");
+    if (firstArrayIndex !== -1 && lastArrayIndex > firstArrayIndex) {
+        return trimmed.slice(firstArrayIndex, lastArrayIndex + 1).trim();
+    }
+
+    return trimmed;
+}
+
+function parseGeneratedStructure(text: string): RootContentStructure[] | null {
+    const candidates = [text, extractJsonCandidate(text)].filter(
+        // biome-ignore lint/complexity/useOptionalChain: <explanation>
+        (candidate): candidate is string => Boolean(candidate && candidate.trim())
+    );
+
+    for (const candidate of candidates) {
+        try {
+            const parsed = JSON.parse(candidate);
+            if (Array.isArray(parsed)) {
+                return parsed as RootContentStructure[];
+            }
+        } catch {
+            // Try the next candidate.
+        }
+    }
+
+    return null;
+}
+
 export function ContentStructureStreamCard({
     systemInstruction,
     pageData,
     onStreamCompleted
 }: ContentStructureStreamCardProps) {
     // Streaming hook for live preview
-    const { streamText, isStreaming, startStreaming, cancel } = useStep5Stream();
+    const { streamText, isStreaming, startStreaming, cancel, lastError } = useStep5Stream();
     const { saveDraftContentStructure } = useStep5Save();
 
     // Local state for streaming output
@@ -40,27 +80,28 @@ export function ContentStructureStreamCard({
 
     // Keep the textarea in sync with the streaming completion
     React.useEffect(() => {
-        if (isStreaming) {
-            setLocalPreview(streamText ?? "");
-        }
-    }, [isStreaming, streamText]);
+        setLocalPreview(streamText ?? "");
+    }, [streamText]);
 
-    // Watch for streaming completion and parse JSON
+    // Watch for streaming completion and parse JSON more defensively.
     React.useEffect(() => {
         if (!isStreaming && streamText && streamText.trim().length > 0) {
-            try {
-                // Try to parse JSON from streamed text
-                const parsed = JSON.parse(streamText);
-                if (Array.isArray(parsed)) {
-                    setGeneratedStructure(parsed);
-                    setStreamCompleted(true);
-                    onStreamCompleted?.(parsed);
-                }
-            } catch (e) {
-                console.warn("Failed to parse streamed JSON:", e);
-                // If not JSON, treat as raw text and create basic structure
+            const parsedStructure = parseGeneratedStructure(streamText);
+
+            if (parsedStructure) {
+                setGeneratedStructure(parsedStructure);
                 setStreamCompleted(true);
+                onStreamCompleted?.(parsedStructure);
+                return;
             }
+
+            console.warn("Failed to parse streamed JSON structure");
+            setGeneratedStructure([]);
+            setStreamCompleted(false);
+            toast.error("Generated structure is not valid JSON yet", {
+                id: "step5-parse-error",
+                description: "Try generating again, or make sure the output is a JSON array.",
+            });
         }
     }, [isStreaming, streamText, onStreamCompleted]);
 
@@ -210,6 +251,14 @@ export function ContentStructureStreamCard({
                         <div className="mt-4 p-3 bg-green-50 rounded border border-green-200">
                             <div className="text-green-800 text-xs font-medium">
                                 Structure generation completed! {generatedStructure.length} elements ready to save.
+                            </div>
+                        </div>
+                    )}
+
+                    {lastError && !isStreaming && (
+                        <div className="mt-4 p-3 bg-red-50 rounded border border-red-200">
+                            <div className="text-red-800 text-xs font-medium">
+                                Generation failed: {lastError}
                             </div>
                         </div>
                     )}

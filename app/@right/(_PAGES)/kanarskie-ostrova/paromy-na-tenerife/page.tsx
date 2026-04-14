@@ -3,7 +3,7 @@
 // Source href: /kanarskie-ostrova/paromy-na-tenerife
 // Page metadata: Паромы на Тенерифе! Тенерифе 2026 | 5 sections
 
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import ContentRenderer from "@/app/@right/(_service)/(_components)/content-renderer";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -693,18 +693,18 @@ const heroImage = {
 // ИСПРАВЛЕННАЯ генерация метаданных для SEO из pageMetadata
 export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = process.env.SITE_URL || 'https://example.com';
-  
+
   // КРИТИЧЕСКИ ВАЖНО: правильная сборка canonical URL
   const canonicalUrl = `${siteUrl}/kanarskie-ostrova/paromy-na-tenerife`;
-  
+
   return {
     title: "Паромы на Тенерифе! Тенерифе 2026",
     description: "Полный гид по морским перевозкам 2025",
-    keywords: ["Паромы на Тенерифе","билеты на паром Тенерифе","расписание паромов Тенерифе"],
-    
+    keywords: ["Паромы на Тенерифе", "билеты на паром Тенерифе", "расписание паромов Тенерифе"],
+
     // ИСПРАВЛЕНИЕ: добавляем metadataBase для правильных URL
     metadataBase: new URL(siteUrl),
-    
+
     // Open Graph метатеги
     openGraph: {
       title: "Паромы на Тенерифе! Тенерифе 2026",
@@ -718,7 +718,7 @@ export async function generateMetadata(): Promise<Metadata> {
         }
       ],
     },
-    
+
     // Twitter метатеги
     twitter: {
       card: "summary_large_image",
@@ -726,18 +726,18 @@ export async function generateMetadata(): Promise<Metadata> {
       description: "Полный гид по морским перевозкам 2025",
       images: ["https://9d8adypzz8xutnay.public.blob.vercel-storage.com/Screenshot%202023-12-14%20193752-iLFevnFZR8YF77PoIZRUXcusgSutpX.png"],
     },
-    
+
     // ИСПРАВЛЕНИЕ: правильный canonical URL - главное изменение
     alternates: {
       canonical: canonicalUrl,
     },
-    
+
     // Метаданные для поисковых роботов
     robots: {
       index: true,
       follow: true,
     },
-    
+
     // Автор и издатель
     authors: [{ name: process.env.SITE_AUTHOR || "Site Author" }],
   };
@@ -753,7 +753,7 @@ export default function Page() {
           <h1 className="font-heading text-3xl text-foreground sm:text-4xl">
             Паромы на Тенерифе! Тенерифе 2026
           </h1>
-        
+
           {/* Описание страницы */}
           <p className="text-base text-muted-foreground md:text-lg">
             Полный гид по морским перевозкам 2025

@@ -7,7 +7,7 @@ import {
   useContext,
   useState,
   useEffect,
-  ReactNode,
+  type ReactNode,
 } from "react";
 
 interface RightSidebarContextType {

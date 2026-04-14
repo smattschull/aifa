@@ -16,10 +16,10 @@ import {
   Hash,
   Target,
 } from "lucide-react";
-import { UserType } from "@prisma/client";
+import type { UserType } from "@prisma/client";
 
 import { PageNotFound } from "../../../../page-not-found";
-import { AdminPageInfoProps } from "../(_types)/admin-page-types";
+import type { AdminPageInfoProps } from "../(_types)/admin-page-types";
 import { useSystemFields } from "../(_hooks)/use-system-fields";
 import { useKeywordsField } from "../(_hooks)/use-keywords-field";
 import {
@@ -274,6 +274,7 @@ export function AdminPageInfo({ slug }: AdminPageInfoProps) {
           <CardContent className="space-y-4">
             <div className="grid gap-3">
               <div>
+                {/* biome-ignore lint/a11y/noLabelWithoutControl: <explanation> */}
                 <label className="text-sm font-medium text-foreground block mb-2">
                   Content Type
                 </label>
@@ -284,6 +285,7 @@ export function AdminPageInfo({ slug }: AdminPageInfoProps) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
+                  {/* biome-ignore lint/a11y/noLabelWithoutControl: <explanation> */}
                   <label className="text-sm font-medium text-foreground block mb-2">
                     Display Order
                   </label>
@@ -293,6 +295,7 @@ export function AdminPageInfo({ slug }: AdminPageInfoProps) {
                 </div>
 
                 <div>
+                  {/* biome-ignore lint/a11y/noLabelWithoutControl: <explanation> */}
                   <label className="text-sm font-medium text-foreground block mb-2">
                     Keywords Count
                   </label>
@@ -303,6 +306,7 @@ export function AdminPageInfo({ slug }: AdminPageInfoProps) {
               </div>
 
               <div>
+                {/* biome-ignore lint/a11y/noLabelWithoutControl: <explanation> */}
                 <label className="text-sm font-medium text-foreground block mb-2">
                   Page ID
                 </label>
@@ -324,6 +328,7 @@ export function AdminPageInfo({ slug }: AdminPageInfoProps) {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
+              {/* biome-ignore lint/a11y/noLabelWithoutControl: <explanation> */}
               <label className="text-sm font-medium text-foreground block">
                 System Integrations
               </label>
@@ -355,11 +360,13 @@ export function AdminPageInfo({ slug }: AdminPageInfoProps) {
 
             {page.roles && page.roles.length > 0 && (
               <div className="space-y-2">
+                {/* biome-ignore lint/a11y/noLabelWithoutControl: <explanation> */}
                 <label className="text-sm font-medium text-foreground block">
                   Access Permissions
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {page.roles.map((roleItem: UserType, index: number) => (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
                     <Badge key={index} variant="outline" className="text-xs">
                       {roleItem}
                     </Badge>

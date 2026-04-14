@@ -1,17 +1,18 @@
 "use client";
 
-import { useState, useEffect, JSX } from "react";
+import { useState, useEffect } from "react";
+import type { JSX } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { MenuCategory } from "../../../(_types)/menu-types";
-import { PageData } from "../../../(_types)/page-types";
+import type { MenuCategory } from "../../../(_types)/menu-types";
+import type { PageData } from "../../../(_types)/page-types";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { humanize } from "../../../(_libs)/humanize";
 import { useSession } from "next-auth/react";
-import { UserType } from "@prisma/client";
+import type { UserType } from "@prisma/client";
 
 interface WideMenuProps {
   isOpen: boolean;
@@ -75,6 +76,7 @@ export default function WideMenu({
         return (
           <li key={singlePage.id} style={{ height: 24, marginTop: 12 }}>
             <button
+              type="button"
               onClick={() => handlePageClick(singlePage)}
               onMouseEnter={() => setHoveredLink(hoverKey)}
               onMouseLeave={() => setHoveredLink(null)}
@@ -131,7 +133,7 @@ export default function WideMenu({
     : null;
 
   const defaultColumns: JSX.Element[] = [];
-  for (let i = 0; i < roleFilteredCategories.length; ) {
+  for (let i = 0; i < roleFilteredCategories.length;) {
     const current = roleFilteredCategories[i];
     const next = roleFilteredCategories[i + 1];
     if (isSmallCategory(current) && next && isSmallCategory(next)) {

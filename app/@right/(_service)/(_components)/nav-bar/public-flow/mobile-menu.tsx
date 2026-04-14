@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { UserType } from "@prisma/client";
+import type { UserType } from "@prisma/client";
 import {
   Accordion,
   AccordionContent,
@@ -13,8 +13,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { humanize } from "../../../(_libs)/humanize";
-import { PageData } from "../../../(_types)/page-types";
-import { MenuCategory } from "../../../(_types)/menu-types";
+import type { PageData } from "../../../(_types)/page-types";
+import type { MenuCategory } from "../../../(_types)/menu-types";
 
 interface MobileMenuProps {
   isOpen: boolean;

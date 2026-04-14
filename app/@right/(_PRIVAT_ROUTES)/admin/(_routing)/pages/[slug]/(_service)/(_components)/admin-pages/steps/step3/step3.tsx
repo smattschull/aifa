@@ -5,10 +5,10 @@ import React from "react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { useNavigationMenu } from "@/app/@right/(_service)/(_context)/nav-bar-provider";
 import { useSession } from "next-auth/react";
-import { UserType } from "@prisma/client";
-import { PageData } from "@/app/@right/(_service)/(_types)/page-types";
+import type { UserType } from "@prisma/client";
+import type { PageData } from "@/app/@right/(_service)/(_types)/page-types";
 import { PageNotFound } from "../../../page-not-found";
-import { AdminPageInfoProps } from "../../../../(_config)/(_types)/admin-page-sections-types";
+import type { AdminPageInfoProps } from "../../../../(_config)/(_types)/admin-page-sections-types";
 import { findPageBySlug } from "../../../../(_utils)/page-helpers";
 import { StepActivationCard } from "../../../step-activation-card";
 

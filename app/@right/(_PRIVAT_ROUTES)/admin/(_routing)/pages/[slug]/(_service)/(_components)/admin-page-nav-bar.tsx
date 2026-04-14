@@ -2,12 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import {
-  AdminPageTab,
+  type AdminPageTab,
   useAdminPagesNav,
 } from "../(_context)/admin-pages-nav-context";
 import {
   ADMIN_PAGES_TABS,
-  IndicatorStatus,
+  type IndicatorStatus,
 } from "../(_config)/admin-pages-config";
 
 const getIndicatorColor = (status: IndicatorStatus): string => {
@@ -93,10 +93,9 @@ export default function AdminPagesNavBar() {
                 className={`
                   whitespace-nowrap shrink-0 relative
                   ${tab.hasIndicator ? "pl-8" : ""}
-                  ${
-                    activeTab === tab.key
-                      ? "bg-primary text-primary-foreground"
-                      : ""
+                  ${activeTab === tab.key
+                    ? "bg-primary text-primary-foreground"
+                    : ""
                   }
                   ${!isClickable ? "opacity-50 cursor-not-allowed" : ""}
                 `}

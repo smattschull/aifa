@@ -130,7 +130,7 @@ const ContentStructureSchema: z.ZodType<ContentStructureType> = z.lazy(() =>
         .optional(),
     }),
     realContentStructure: z.array(ContentStructureSchema).optional(),
-  })
+  }),
 );
 
 // ✅ ИСПРАВЛЕНИЕ: Оборачиваем массив в объект
@@ -143,7 +143,7 @@ const ContentRepairResponseSchema = z.object({
  */
 export async function repairContentStructureAction(
   request: ContentRepairServerRequest,
-  attemptNumber: number = 1
+  attemptNumber = 1,
 ): Promise<ContentRepairServerResult> {
   console.log("🔧 Server: Starting ContentStructure repair with OpenAI:", {
     originalLength: request.invalidJsonString.length,
@@ -237,7 +237,7 @@ Return a properly structured response object with contentStructure array.
 
     const confidence = calculateContentRepairConfidence(
       repairedArray,
-      request.invalidJsonString
+      request.invalidJsonString,
     );
 
     const result: ContentRepairServerResult = {
@@ -279,7 +279,7 @@ Return a properly structured response object with contentStructure array.
  */
 function calculateContentRepairConfidence(
   repairedData: ContentStructureType[],
-  originalData: string
+  originalData: string,
 ): number {
   let confidence = 0.4;
 
@@ -301,10 +301,10 @@ function calculateContentRepairConfidence(
 
   const elementsWithIntent = repairedData.filter((item) => item.intent).length;
   const elementsWithKeywords = repairedData.filter(
-    (item) => item.keywords?.length && item.keywords.length > 0
+    (item) => item.keywords?.length && item.keywords.length > 0,
   ).length;
   const elementsWithSelfPrompt = repairedData.filter(
-    (item) => item.selfPrompt
+    (item) => item.selfPrompt,
   ).length;
 
   if (elementsWithIntent > 0) confidence += 0.05;
@@ -315,7 +315,7 @@ function calculateContentRepairConfidence(
     (item) =>
       item.additionalData.minWords <= item.additionalData.maxWords &&
       item.additionalData.minWords > 0 &&
-      item.additionalData.maxWords > 0
+      item.additionalData.maxWords > 0,
   ).length;
 
   if (logicalWordCounts === validElements.length && validElements.length > 0) {
