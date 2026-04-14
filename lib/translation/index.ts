@@ -24,8 +24,8 @@ export function __(original: string): string {
     if (entry.translations[locale]) {
       return entry.translations[locale];
     }
-    if (entry.translations["en"]) {
-      return entry.translations["en"];
+    if (entry.translations.en) {
+      return entry.translations.en;
     }
     // fallback to original if no translations found
     return original;
