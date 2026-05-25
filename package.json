@@ -30,7 +30,8 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "prisma db push && next build",
+    "build": "next build",
+    "vercel-build": "prisma generate && prisma migrate deploy && next build",
     "turbo": "next dev --turbo",
     "start": "next start",
     "lint": "next lint",
