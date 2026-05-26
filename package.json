@@ -1,5 +1,5 @@
 {
-  "name": "AIFA- Enterprise-Grade AI Next.js starter ",
+  "name": "aifa",
   "version": "0.0.01",
   "private": false,
   "description": "Free Open-Source starter kit to build, deploy, and scale intelligent AI applications. Artifacts Feature, features secure multi-provider auth, Stripe payments, vector knowledge bases, deep-research agents, and a unique fractal architecture designed for the future of AI.",
