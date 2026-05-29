@@ -148,7 +148,7 @@ export function Chat({
   useEffect(() => {
     setGeneratedWebsiteState({
       html: "",
-      url: generatedWebsite?.demoUrl ?? "",
+      url: generatedWebsite?.rawDemoUrl ?? generatedWebsite?.demoUrl ?? "",
       screenshotUrl: generatedWebsite?.screenshotUrl ?? "",
       v0Url: generatedWebsite?.webUrl ?? "",
       chatId: generatedWebsite?.chatId ?? "",
@@ -160,6 +160,7 @@ export function Chat({
     generatedWebsite?.chatId,
     generatedWebsite?.demoUrl,
     generatedWebsite?.files.length,
+    generatedWebsite?.rawDemoUrl,
     generatedWebsite?.screenshotUrl,
     generatedWebsite?.webUrl,
     isGenerating,

@@ -14,12 +14,6 @@ Create a production-ready website, not a rough outline. Use:
 
 Return a working project/page that can be previewed in v0. Avoid placeholder-only wireframes unless the user explicitly asks for a wireframe.`;
 
-function toPreviewProxyUrl(demoUrl?: string) {
-  if (!demoUrl) return undefined;
-
-  return `/api/v0-preview?url=${encodeURIComponent(demoUrl)}`;
-}
-
 async function waitForCompletedChat(chat: ChatDetail) {
   let currentChat = chat;
 
@@ -113,7 +107,7 @@ function toGenerationResponse(
   return {
     chatId: chat.id,
     versionId: version?.id,
-    demoUrl: toPreviewProxyUrl(previewUrl),
+    demoUrl: previewUrl,
     rawDemoUrl: previewUrl,
     screenshotUrl: version?.screenshotUrl,
     deploymentUrl: deploymentPreview?.webUrl,

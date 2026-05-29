@@ -15,10 +15,8 @@ import {
 
 function toPreviewSrc(url: string) {
   if (!url) return "";
-  if (url.startsWith("/api/v0-preview")) return url;
-  if (!url.startsWith("http")) return url;
 
-  return `/api/v0-preview?url=${encodeURIComponent(url)}`;
+  return url;
 }
 
 export function GeneratedWebsitePanel({
@@ -53,10 +51,6 @@ export function GeneratedWebsitePanel({
     generatedWebsiteScreenshotUrl ||
     isGeneratingWebsite ||
     websiteGenerationError;
-
-  if (!hasGeneratedWebsite) {
-    return <>{children}</>;
-  }
 
   const handleSelectPoint = (event: MouseEvent<HTMLButtonElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -113,7 +107,7 @@ export function GeneratedWebsitePanel({
       const result = (await response.json()) as GeneratedWebsiteResult;
       setGeneratedWebsiteState({
         html: "",
-        url: result.demoUrl ?? "",
+        url: result.rawDemoUrl ?? result.demoUrl ?? "",
         screenshotUrl: result.screenshotUrl ?? "",
         v0Url: result.webUrl,
         chatId: result.chatId,
@@ -129,6 +123,10 @@ export function GeneratedWebsitePanel({
       setIsEditing(false);
     }
   };
+
+  if (!hasGeneratedWebsite) {
+    return <>{children}</>;
+  }
 
   return (
     <div className="flex h-svh flex-col bg-background">
@@ -167,7 +165,7 @@ export function GeneratedWebsitePanel({
           inspectMode={isSelecting}
           onElementSelected={handleElementSelected}
         />
-        {isSelecting && !generatedWebsiteHtml && !generatedWebsiteUrl && (
+        {isSelecting && (
           <button
             type="button"
             aria-label="Select preview area"

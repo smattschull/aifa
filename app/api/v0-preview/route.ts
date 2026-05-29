@@ -24,6 +24,20 @@ function withBaseTag(html: string, sourceUrl: URL) {
   return `${baseTag}${html}`;
 }
 
+function withPreviewAssetUrls(html: string, sourceUrl: URL) {
+  const rootRelativeAttributePattern =
+    /\b(src|href|poster)=("|')\/(?!\/|#)([^"']*)\2/g;
+
+  return html.replace(
+    rootRelativeAttributePattern,
+    (_match, attribute: string, quote: string, path: string) => {
+      const absoluteUrl = new URL(`/${path}`, sourceUrl).href;
+
+      return `${attribute}=${quote}${absoluteUrl}${quote}`;
+    }
+  );
+}
+
 function withInspectScript(html: string) {
   const inspectScript = String.raw`
 <script>
@@ -195,7 +209,9 @@ export async function GET(request: NextRequest) {
   }
 
   const html = await upstream.text();
-  const proxiedHtml = withInspectScript(withBaseTag(html, sourceUrl));
+  const proxiedHtml = withInspectScript(
+    withPreviewAssetUrls(withBaseTag(html, sourceUrl), sourceUrl)
+  );
 
   return new Response(proxiedHtml, {
     status: upstream.status,
