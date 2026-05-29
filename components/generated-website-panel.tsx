@@ -4,7 +4,14 @@ import { WebsitePreview } from "@/components/website-preview";
 import type { PreviewElementSelection } from "@/components/website-preview";
 import { useAppContext } from "@/contexts/app-context";
 import type { GeneratedWebsiteResult } from "@/hooks/use-website-generator";
-import { Crosshair, Loader2, MousePointer2, Send } from "lucide-react";
+import {
+  Crosshair,
+  ExternalLink,
+  Loader2,
+  MousePointer2,
+  Rocket,
+  Send,
+} from "lucide-react";
 import {
   type FormEvent,
   type MouseEvent,
@@ -44,6 +51,9 @@ export function GeneratedWebsitePanel({
     useState<PreviewElementSelection | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
+  const [isDeploying, setIsDeploying] = useState(false);
+  const [deployError, setDeployError] = useState<string | null>(null);
+  const [deploymentUrl, setDeploymentUrl] = useState("");
 
   const hasGeneratedWebsite =
     generatedWebsiteHtml ||
@@ -78,6 +88,8 @@ export function GeneratedWebsitePanel({
 
     setIsEditing(true);
     setEditError(null);
+    setDeployError(null);
+    setDeploymentUrl("");
 
     const positionContext = selectedElement
       ? `The user selected this element in the live preview:
@@ -124,6 +136,36 @@ export function GeneratedWebsitePanel({
     }
   };
 
+  const handleDeploy = async () => {
+    if (!generatedWebsiteChatId) return;
+
+    setIsDeploying(true);
+    setDeployError(null);
+
+    try {
+      const response = await fetch("/api/deploy-generated-website", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chatId: generatedWebsiteChatId }),
+      });
+
+      if (!response.ok) {
+        const message = await response.text();
+        throw new Error(message || "Deployment failed");
+      }
+
+      const result = (await response.json()) as {
+        deploymentUrl?: string;
+      };
+
+      setDeploymentUrl(result.deploymentUrl ?? "");
+    } catch (error) {
+      setDeployError(error instanceof Error ? error.message : "Deployment failed");
+    } finally {
+      setIsDeploying(false);
+    }
+  };
+
   if (!hasGeneratedWebsite) {
     return <>{children}</>;
   }
@@ -140,18 +182,47 @@ export function GeneratedWebsitePanel({
               Preview and refine the current v0 chat
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              setIsSelecting((current) => !current);
-              setEditError(null);
-            }}
-            className="inline-flex shrink-0 items-center gap-2 rounded-md border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted"
-          >
-            <Crosshair className="size-3.5" />
-            {isSelecting ? "Cancel select" : "Select area"}
-          </button>
+          <div className="flex shrink-0 items-center gap-2">
+            {deploymentUrl && (
+              <a
+                href={deploymentUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-md border border-emerald-500/40 px-3 py-1.5 text-xs font-medium text-emerald-600 hover:bg-emerald-500/10"
+              >
+                <ExternalLink className="size-3.5" />
+                Live öffnen
+              </a>
+            )}
+            <button
+              type="button"
+              onClick={handleDeploy}
+              disabled={!generatedWebsiteChatId || isDeploying || isEditing}
+              className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isDeploying ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <Rocket className="size-3.5" />
+              )}
+              {isDeploying ? "Publiziert..." : "Publizieren"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setIsSelecting((current) => !current);
+                setEditError(null);
+              }}
+              className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted"
+            >
+              <Crosshair className="size-3.5" />
+              {isSelecting ? "Cancel select" : "Select area"}
+            </button>
+          </div>
         </div>
+        {deployError && (
+          <p className="mt-2 text-xs text-destructive">{deployError}</p>
+        )}
       </div>
 
       <div className="relative min-h-0 flex-1">
