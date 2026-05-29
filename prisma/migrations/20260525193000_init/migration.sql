@@ -1,4 +1,4 @@
-﻿-- CreateEnum
+-- CreateEnum
 CREATE TYPE "Visibility" AS ENUM ('private', 'unlisted', 'public');
 
 -- CreateEnum
