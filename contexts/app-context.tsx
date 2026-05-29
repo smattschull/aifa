@@ -32,6 +32,24 @@ interface AppContextType {
   navigateForward: () => string | null;
   canNavigateBack: boolean;
   canNavigateForward: boolean;
+  generatedWebsiteHtml: string;
+  generatedWebsiteUrl: string;
+  generatedWebsiteScreenshotUrl: string;
+  generatedWebsiteV0Url: string;
+  generatedWebsiteChatId: string;
+  generatedWebsiteHasFiles: boolean;
+  isGeneratingWebsite: boolean;
+  websiteGenerationError: string | null;
+  setGeneratedWebsiteState: (state: {
+    html?: string;
+    url?: string;
+    screenshotUrl?: string;
+    v0Url?: string;
+    chatId?: string;
+    hasFiles?: boolean;
+    isGenerating?: boolean;
+    error?: string | null;
+  }) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -45,6 +63,18 @@ const MAX_HISTORY_LENGTH = 100;
 export const AppProvider = ({ children }: AppProviderProps) => {
   const [activeInteraction, setActiveInteraction] =
     useState<InteractionState | null>(null);
+  const [generatedWebsiteHtml, setGeneratedWebsiteHtml] = useState("");
+  const [generatedWebsiteUrl, setGeneratedWebsiteUrl] = useState("");
+  const [generatedWebsiteScreenshotUrl, setGeneratedWebsiteScreenshotUrl] =
+    useState("");
+  const [generatedWebsiteV0Url, setGeneratedWebsiteV0Url] = useState("");
+  const [generatedWebsiteChatId, setGeneratedWebsiteChatId] = useState("");
+  const [generatedWebsiteHasFiles, setGeneratedWebsiteHasFiles] =
+    useState(false);
+  const [isGeneratingWebsite, setIsGeneratingWebsite] = useState(false);
+  const [websiteGenerationError, setWebsiteGenerationError] = useState<
+    string | null
+  >(null);
 
   const [navigationHistory, setNavigationHistory] = useLocalStorage<string[]>(
     "rightSlotNavigationHistory",
@@ -103,6 +133,39 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     return null;
   }, [currentHistoryIndex, navigationHistory, setCurrentHistoryIndex]);
 
+  const setGeneratedWebsiteState = useCallback(
+    ({
+      html,
+      url,
+      screenshotUrl,
+      v0Url,
+      chatId,
+      hasFiles,
+      isGenerating,
+      error,
+    }: {
+      html?: string;
+      url?: string;
+      screenshotUrl?: string;
+      v0Url?: string;
+      chatId?: string;
+      hasFiles?: boolean;
+      isGenerating?: boolean;
+      error?: string | null;
+    }) => {
+      if (html !== undefined) setGeneratedWebsiteHtml(html);
+      if (url !== undefined) setGeneratedWebsiteUrl(url);
+      if (screenshotUrl !== undefined)
+        setGeneratedWebsiteScreenshotUrl(screenshotUrl);
+      if (v0Url !== undefined) setGeneratedWebsiteV0Url(v0Url);
+      if (chatId !== undefined) setGeneratedWebsiteChatId(chatId);
+      if (hasFiles !== undefined) setGeneratedWebsiteHasFiles(hasFiles);
+      if (isGenerating !== undefined) setIsGeneratingWebsite(isGenerating);
+      if (error !== undefined) setWebsiteGenerationError(error);
+    },
+    []
+  );
+
   // Мемоизация значения контекста для оптимизации производительности
   const value = useMemo(
     () => ({
@@ -113,6 +176,15 @@ export const AppProvider = ({ children }: AppProviderProps) => {
       navigateForward,
       canNavigateBack: currentHistoryIndex > 0,
       canNavigateForward: currentHistoryIndex < navigationHistory.length - 1,
+      generatedWebsiteHtml,
+      generatedWebsiteUrl,
+      generatedWebsiteScreenshotUrl,
+      generatedWebsiteV0Url,
+      generatedWebsiteChatId,
+      generatedWebsiteHasFiles,
+      isGeneratingWebsite,
+      websiteGenerationError,
+      setGeneratedWebsiteState,
     }),
     [
       activeInteraction,
@@ -121,6 +193,15 @@ export const AppProvider = ({ children }: AppProviderProps) => {
       currentHistoryIndex,
       navigateBack,
       navigateForward,
+      generatedWebsiteHtml,
+      generatedWebsiteUrl,
+      generatedWebsiteScreenshotUrl,
+      generatedWebsiteV0Url,
+      generatedWebsiteChatId,
+      generatedWebsiteHasFiles,
+      isGeneratingWebsite,
+      websiteGenerationError,
+      setGeneratedWebsiteState,
     ]
   );
 

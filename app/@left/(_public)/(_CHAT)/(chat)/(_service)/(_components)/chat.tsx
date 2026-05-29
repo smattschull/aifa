@@ -10,7 +10,7 @@ import { fetcher } from "@/lib/utils";
 import { Artifact } from "./artifact";
 import { MultimodalInput } from "./multimodal-input";
 import { Messages } from "./messages";
-import { WebsitePreview } from "@/components/website-preview";
+import { V0StepsPanel } from "@/components/v0-steps-panel";
 import type { VisibilityType } from "./visibility-selector";
 import { useArtifactSelector } from "@/app/@left/(_public)/(_CHAT)/(chat)/(_service)/(_hooks)/use-artifact";
 import { unstable_serialize } from "swr/infinite";
@@ -23,6 +23,7 @@ import { useAutoResume } from "@/app/@left/(_public)/(_CHAT)/(chat)/(_service)/(
 import type { Vote } from "@prisma/client";
 import { generateCuid } from "@/lib/utils/generateCuid";
 import { useWebsiteGenerator } from "@/hooks/use-website-generator";
+import { useAppContext } from "@/contexts/app-context";
 
 export function Chat({
   id,
@@ -49,10 +50,12 @@ export function Chat({
   const router = useRouter();
   const {
     generateWebsite,
-    generatedCode,
+    generatedWebsite,
+    steps: websiteGenerationSteps,
     isGenerating,
     error: websiteGenerationError,
   } = useWebsiteGenerator();
+  const { setGeneratedWebsiteState } = useAppContext();
   const {
     messages,
     setMessages,
@@ -142,25 +145,35 @@ export function Chat({
     console.log("essages in chat txt ", messages);
   }, [messages]);
 
+  useEffect(() => {
+    setGeneratedWebsiteState({
+      html: "",
+      url: generatedWebsite?.demoUrl ?? "",
+      screenshotUrl: generatedWebsite?.screenshotUrl ?? "",
+      v0Url: generatedWebsite?.webUrl ?? "",
+      chatId: generatedWebsite?.chatId ?? "",
+      hasFiles: Boolean(generatedWebsite?.files.length),
+      isGenerating,
+      error: websiteGenerationError,
+    });
+  }, [
+    generatedWebsite?.chatId,
+    generatedWebsite?.demoUrl,
+    generatedWebsite?.files.length,
+    generatedWebsite?.screenshotUrl,
+    generatedWebsite?.webUrl,
+    isGenerating,
+    setGeneratedWebsiteState,
+    websiteGenerationError,
+  ]);
+
   const handleChatSubmit = useCallback<typeof handleSubmit>(
-    async (event, options) => {
+    async (event) => {
+      event?.preventDefault?.();
+      window.history.replaceState({}, "", "/chat");
       const userMessage = input.trim();
 
-      if (!userMessage.toLowerCase().startsWith("generate:")) {
-        return handleSubmit(event, options);
-      }
-
-      event?.preventDefault?.();
-
-      const description = userMessage.replace(/^generate:/i, "").trim();
-
-      if (!description) {
-        toast({
-          type: "error",
-          description: 'Add a description after "generate:" to create a website.',
-        });
-        return;
-      }
+      if (!userMessage) return;
 
       setMessages((currentMessages) => [
         ...currentMessages,
@@ -170,11 +183,41 @@ export function Chat({
           parts: [{ type: "text", text: userMessage }],
         } as UIMessage,
       ]);
-
       setInput("");
-      await generateWebsite(description);
+
+      try {
+        const result = await generateWebsite(userMessage);
+        setMessages((currentMessages) => [
+          ...currentMessages,
+          {
+            id: generateCuid(),
+            role: "assistant",
+            parts: [
+              {
+                type: "text",
+                text: result?.demoUrl
+                  ? "v0 generated the website preview. You can see it in the right panel and keep refining it here."
+                  : result?.screenshotUrl
+                    ? "v0 generated a website screenshot, but the live preview URL is still preparing."
+                  : "v0 generated the files, but the preview URL is still preparing.",
+              },
+            ],
+          } as UIMessage,
+        ]);
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Website generation failed";
+        setMessages((currentMessages) => [
+          ...currentMessages,
+          {
+            id: generateCuid(),
+            role: "assistant",
+            parts: [{ type: "text", text: message }],
+          } as UIMessage,
+        ]);
+      }
     },
-    [generateWebsite, handleSubmit, input, setInput, setMessages]
+    [generateWebsite, input, setInput, setMessages]
   );
 
   return (
@@ -199,23 +242,12 @@ export function Chat({
           isArtifactVisible={isArtifactVisible}
         />
 
-        {(isGenerating || generatedCode || websiteGenerationError) && (
-          <div className="mx-auto w-full px-4 pb-4 md:max-w-3xl">
-            <div className="overflow-hidden rounded-3xl border border-border/70 bg-card shadow-sm">
-              <div className="border-b border-border/70 px-4 py-3">
-                <p className="text-sm font-medium text-foreground">
-                  Website Preview
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Messages starting with <code>generate:</code> render here.
-                </p>
-              </div>
-
-              <div className="h-[28rem]">
-                <WebsitePreview code={generatedCode} isLoading={isGenerating} />
-              </div>
-            </div>
-          </div>
+        {(isGenerating || generatedWebsite || websiteGenerationError) && (
+          <V0StepsPanel
+            steps={websiteGenerationSteps}
+            isGenerating={isGenerating}
+            error={websiteGenerationError}
+          />
         )}
 
         <form className="flex mx-auto px-4 bg-background pb-4 md:pb-6 gap-2 w-full md:max-w-3xl">
@@ -225,7 +257,7 @@ export function Chat({
               input={input}
               setInput={setInput}
               handleSubmit={handleChatSubmit}
-              status={status}
+              status={isGenerating ? "submitted" : status}
               stop={stop}
               attachments={attachments}
               setAttachments={setAttachments}
@@ -243,7 +275,7 @@ export function Chat({
         input={input}
         setInput={setInput}
         handleSubmit={handleChatSubmit}
-        status={status}
+        status={isGenerating ? "submitted" : status}
         stop={stop}
         attachments={attachments}
         setAttachments={setAttachments}

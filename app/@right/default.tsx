@@ -6,12 +6,13 @@ import HomePage from "./(_service)/(_components)/home-page/home-page";
 import { Footer } from "./(_service)/(_components)/footer";
 import { NavBar } from "./(_service)/(_components)/nav-bar/nav-bar";
 import { NavigationMenuProvider } from "./(_service)/(_context)/nav-bar-provider";
+import { GeneratedWebsitePanel } from "@/components/generated-website-panel";
 
 export const metadata: Metadata = constructMetadata();
 
 export default function Default() {
   return (
-    <>
+    <GeneratedWebsitePanel>
       <NavigationMenuProvider>
         <div className=" flex flex-col h-svh pb-6">
           <NavBar />
@@ -21,6 +22,6 @@ export default function Default() {
           </main>
         </div>
       </NavigationMenuProvider>
-    </>
+    </GeneratedWebsitePanel>
   );
 }

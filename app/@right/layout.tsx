@@ -5,6 +5,7 @@ import React, { Children } from "react";
 import { Footer } from "./(_service)/(_components)/footer";
 import { NavigationMenuProvider } from "./(_service)/(_context)/nav-bar-provider";
 import { NavBar } from "./(_service)/(_components)/nav-bar/nav-bar";
+import { GeneratedWebsitePanel } from "@/components/generated-website-panel";
 
 export default function RightLayout({
   children,
@@ -12,7 +13,7 @@ export default function RightLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
+    <GeneratedWebsitePanel>
       <NavigationMenuProvider>
         <div className="flex flex-col h-svh pb-6 relative">
           <NavBar />
@@ -24,6 +25,6 @@ export default function RightLayout({
           </main>
         </div>
       </NavigationMenuProvider>
-    </>
+    </GeneratedWebsitePanel>
   );
 }

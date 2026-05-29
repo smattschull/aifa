@@ -29,7 +29,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     chat = await getChatById(id);
 
     if (!chat) {
-      notFound();
+      redirect("/chat");
     }
 
     // Получаем сессию пользователя
@@ -50,9 +50,25 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     // Получаем сообщения
     messagesFromDb = await getMessagesByChatId(id);
   } catch (error) {
+    if (
+      error &&
+      typeof error === "object" &&
+      "digest" in error &&
+      typeof error.digest === "string" &&
+      (error.digest.startsWith("NEXT_REDIRECT") ||
+        error.digest.startsWith("NEXT_HTTP_ERROR_FALLBACK"))
+    ) {
+      throw error;
+    }
+
     // If React throws the special postpone object to bail out of prerendering,
     // re-throw it so Next.js can handle Partial Prerendering correctly.
-    if (error && typeof error === "object" && (error as any).$$typeof) {
+    if (
+      error &&
+      typeof error === "object" &&
+      "$$typeof" in error &&
+      Boolean(error.$$typeof)
+    ) {
       throw error;
     }
 
@@ -71,7 +87,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
             typeof item === "object" &&
             item !== null &&
             "url" in item &&
-            typeof (item as any).url === "string"
+            typeof (item as { url: unknown }).url === "string"
         )
       );
     }
