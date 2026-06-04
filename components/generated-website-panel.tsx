@@ -17,6 +17,7 @@ import {
   type MouseEvent,
   type ReactNode,
   useCallback,
+  useEffect,
   useState,
 } from "react";
 
@@ -36,6 +37,7 @@ export function GeneratedWebsitePanel({
     generatedWebsiteUrl,
     generatedWebsiteScreenshotUrl,
     generatedWebsiteHasFiles,
+    generatedWebsiteHasRootPage,
     generatedWebsiteChatId,
     isGeneratingWebsite,
     websiteGenerationError,
@@ -54,6 +56,8 @@ export function GeneratedWebsitePanel({
   const [isDeploying, setIsDeploying] = useState(false);
   const [deployError, setDeployError] = useState<string | null>(null);
   const [deploymentUrl, setDeploymentUrl] = useState("");
+  const [repairAttemptedForChatId, setRepairAttemptedForChatId] =
+    useState("");
 
   const hasGeneratedWebsite =
     generatedWebsiteHtml ||
@@ -123,6 +127,11 @@ export function GeneratedWebsitePanel({
         screenshotUrl: result.screenshotUrl ?? "",
         v0Url: result.webUrl,
         chatId: result.chatId,
+        hasFiles: Boolean(result.files.length),
+        hasRootPage: result.files.some(
+          (file) =>
+            file.name.replaceAll("\\", "/").toLowerCase() === "app/page.tsx"
+        ),
         isGenerating: false,
         error: null,
       });
@@ -166,6 +175,77 @@ export function GeneratedWebsitePanel({
     }
   };
 
+  useEffect(() => {
+    if (
+      !generatedWebsiteChatId ||
+      !generatedWebsiteHasFiles ||
+      generatedWebsiteHasRootPage ||
+      isGeneratingWebsite ||
+      repairAttemptedForChatId === generatedWebsiteChatId
+    ) {
+      return;
+    }
+
+    let isCancelled = false;
+    setRepairAttemptedForChatId(generatedWebsiteChatId);
+    setGeneratedWebsiteState({ isGenerating: true, error: null });
+
+    async function repairMissingRootPage() {
+      try {
+        const response = await fetch(
+          `/api/generate-website?chatId=${encodeURIComponent(
+            generatedWebsiteChatId
+          )}`
+        );
+
+        if (!response.ok) {
+          const message = await response.text();
+          throw new Error(message || "Preview repair failed");
+        }
+
+        const result = (await response.json()) as GeneratedWebsiteResult;
+
+        if (isCancelled) return;
+
+        setGeneratedWebsiteState({
+          html: "",
+          url: result.rawDemoUrl ?? result.demoUrl ?? "",
+          screenshotUrl: result.screenshotUrl ?? "",
+          v0Url: result.webUrl,
+          chatId: result.chatId,
+          hasFiles: Boolean(result.files.length),
+          hasRootPage: result.files.some(
+            (file) =>
+              file.name.replaceAll("\\", "/").toLowerCase() === "app/page.tsx"
+          ),
+          isGenerating: false,
+          error: null,
+        });
+      } catch (error) {
+        if (isCancelled) return;
+
+        setGeneratedWebsiteState({
+          isGenerating: false,
+          error:
+            error instanceof Error ? error.message : "Preview repair failed",
+        });
+      }
+    }
+
+    void repairMissingRootPage();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [
+    generatedWebsiteChatId,
+    generatedWebsiteHasFiles,
+    generatedWebsiteHasRootPage,
+    isGeneratingWebsite,
+    repairAttemptedForChatId,
+    setGeneratedWebsiteState,
+  ]);
+
   if (!hasGeneratedWebsite) {
     return <>{children}</>;
   }
@@ -191,7 +271,7 @@ export function GeneratedWebsitePanel({
                 className="inline-flex items-center gap-2 rounded-md border border-emerald-500/40 px-3 py-1.5 text-xs font-medium text-emerald-600 hover:bg-emerald-500/10"
               >
                 <ExternalLink className="size-3.5" />
-                Live öffnen
+                Live oeffnen
               </a>
             )}
             <button

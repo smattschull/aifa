@@ -146,6 +146,12 @@ export function Chat({
   }, [messages]);
 
   useEffect(() => {
+    const hasRootPage = Boolean(
+      generatedWebsite?.files.some(
+        (file) => file.name.replaceAll("\\", "/").toLowerCase() === "app/page.tsx"
+      )
+    );
+
     setGeneratedWebsiteState({
       html: "",
       url: generatedWebsite?.rawDemoUrl ?? generatedWebsite?.demoUrl ?? "",
@@ -153,6 +159,7 @@ export function Chat({
       v0Url: generatedWebsite?.webUrl ?? "",
       chatId: generatedWebsite?.chatId ?? "",
       hasFiles: Boolean(generatedWebsite?.files.length),
+      hasRootPage,
       isGenerating,
       error: websiteGenerationError,
     });
@@ -162,6 +169,7 @@ export function Chat({
     generatedWebsite?.files.length,
     generatedWebsite?.rawDemoUrl,
     generatedWebsite?.screenshotUrl,
+    generatedWebsite?.versionId,
     generatedWebsite?.webUrl,
     isGenerating,
     setGeneratedWebsiteState,

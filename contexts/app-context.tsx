@@ -38,6 +38,7 @@ interface AppContextType {
   generatedWebsiteV0Url: string;
   generatedWebsiteChatId: string;
   generatedWebsiteHasFiles: boolean;
+  generatedWebsiteHasRootPage: boolean;
   isGeneratingWebsite: boolean;
   websiteGenerationError: string | null;
   setGeneratedWebsiteState: (state: {
@@ -47,6 +48,7 @@ interface AppContextType {
     v0Url?: string;
     chatId?: string;
     hasFiles?: boolean;
+    hasRootPage?: boolean;
     isGenerating?: boolean;
     error?: string | null;
   }) => void;
@@ -70,6 +72,8 @@ export const AppProvider = ({ children }: AppProviderProps) => {
   const [generatedWebsiteV0Url, setGeneratedWebsiteV0Url] = useState("");
   const [generatedWebsiteChatId, setGeneratedWebsiteChatId] = useState("");
   const [generatedWebsiteHasFiles, setGeneratedWebsiteHasFiles] =
+    useState(false);
+  const [generatedWebsiteHasRootPage, setGeneratedWebsiteHasRootPage] =
     useState(false);
   const [isGeneratingWebsite, setIsGeneratingWebsite] = useState(false);
   const [websiteGenerationError, setWebsiteGenerationError] = useState<
@@ -141,6 +145,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
       v0Url,
       chatId,
       hasFiles,
+      hasRootPage,
       isGenerating,
       error,
     }: {
@@ -150,6 +155,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
       v0Url?: string;
       chatId?: string;
       hasFiles?: boolean;
+      hasRootPage?: boolean;
       isGenerating?: boolean;
       error?: string | null;
     }) => {
@@ -160,6 +166,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
       if (v0Url !== undefined) setGeneratedWebsiteV0Url(v0Url);
       if (chatId !== undefined) setGeneratedWebsiteChatId(chatId);
       if (hasFiles !== undefined) setGeneratedWebsiteHasFiles(hasFiles);
+      if (hasRootPage !== undefined) setGeneratedWebsiteHasRootPage(hasRootPage);
       if (isGenerating !== undefined) setIsGeneratingWebsite(isGenerating);
       if (error !== undefined) setWebsiteGenerationError(error);
     },
@@ -182,6 +189,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
       generatedWebsiteV0Url,
       generatedWebsiteChatId,
       generatedWebsiteHasFiles,
+      generatedWebsiteHasRootPage,
       isGeneratingWebsite,
       websiteGenerationError,
       setGeneratedWebsiteState,
@@ -199,6 +207,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
       generatedWebsiteV0Url,
       generatedWebsiteChatId,
       generatedWebsiteHasFiles,
+      generatedWebsiteHasRootPage,
       isGeneratingWebsite,
       websiteGenerationError,
       setGeneratedWebsiteState,

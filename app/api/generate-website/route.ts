@@ -12,7 +12,19 @@ Create a production-ready website, not a rough outline. Use:
 - Realistic sections, content hierarchy, empty/error/loading states where relevant
 - Polished visual design with consistent spacing, accessible contrast, and keyboard-friendly controls
 
+Hard requirements:
+- Always create or update app/page.tsx.
+- app/page.tsx must export a visible default React component with real page content.
+- Do not return only layout, package, or global style files.
+- The first viewport must contain visible text and UI/content without requiring any user action.
+
 Return a working project/page that can be previewed in v0. Avoid placeholder-only wireframes unless the user explicitly asks for a wireframe.`;
+
+const V0_MODEL_CONFIGURATION = {
+  modelId: "v0-mini" as const,
+  imageGenerations: true,
+  thinking: true,
+};
 
 async function waitForCompletedChat(chat: ChatDetail) {
   let currentChat = chat;
@@ -30,6 +42,50 @@ async function waitForCompletedChat(chat: ChatDetail) {
   }
 
   return currentChat;
+}
+
+function hasVisiblePageFile(chat: ChatDetail) {
+  const files = chat.latestVersion?.files ?? [];
+
+  return files.some((file) => {
+    const normalizedName = file.name.replaceAll("\\", "/").toLowerCase();
+
+    if (!normalizedName.endsWith("app/page.tsx")) return false;
+
+    return (
+      file.content.includes("export default") &&
+      file.content.includes("return")
+    );
+  });
+}
+
+async function ensureVisiblePage(chat: ChatDetail) {
+  if (hasVisiblePageFile(chat)) return chat;
+
+  const repairMessage = `The current version renders blank because it does not include a visible app/page.tsx root page.
+
+Create or update app/page.tsx now. It must:
+- export a default React component
+- render the full requested website on the root route
+- include a visible hero/first screen, navigation, and meaningful sections
+- import and compose any components you created
+- not rely on layout.tsx alone for visible content
+
+Keep the existing visual direction and content, but make the preview render actual page content.`;
+
+  const repairedChat = await v0.chats.sendMessage({
+    chatId: chat.id,
+    message: repairMessage,
+    system: V0_WEBSITE_SYSTEM_PROMPT,
+    responseMode: "sync",
+    modelConfiguration: V0_MODEL_CONFIGURATION,
+  });
+
+  if (repairedChat instanceof ReadableStream) {
+    return chat;
+  }
+
+  return waitForCompletedChat(repairedChat);
 }
 
 async function createDeploymentPreview(chat: ChatDetail) {
@@ -135,7 +191,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const chat = await v0.chats.getById({ chatId });
+    const chat = await ensureVisiblePage(await v0.chats.getById({ chatId }));
     const deploymentPreview = chat.latestVersion?.demoUrl
       ? null
       : await createDeploymentPreview(chat);
@@ -164,7 +220,9 @@ export async function POST(request: NextRequest) {
 
 ${description}
 
-Make it feel complete enough to show to a client: real layout, polished copy, responsive navigation, strong first screen, meaningful sections, and clean implementation.`;
+Make it feel complete enough to show to a client: real layout, polished copy, responsive navigation, strong first screen, meaningful sections, and clean implementation.
+
+You must create or update app/page.tsx with visible root page content.`;
 
   try {
     const chat = chatId
@@ -173,29 +231,21 @@ Make it feel complete enough to show to a client: real layout, polished copy, re
           message,
           system: V0_WEBSITE_SYSTEM_PROMPT,
           responseMode: "sync",
-          modelConfiguration: {
-            modelId: "v0-max",
-            imageGenerations: true,
-            thinking: true,
-          },
+          modelConfiguration: V0_MODEL_CONFIGURATION,
         })
       : await v0.chats.create({
           message,
           system: V0_WEBSITE_SYSTEM_PROMPT,
           chatPrivacy: "private",
           responseMode: "sync",
-          modelConfiguration: {
-            modelId: "v0-max",
-            imageGenerations: true,
-            thinking: true,
-          },
+          modelConfiguration: V0_MODEL_CONFIGURATION,
         });
 
     if (chat instanceof ReadableStream) {
       return new Response("Unexpected v0 streaming response", { status: 500 });
     }
 
-    const completedChat = await waitForCompletedChat(chat);
+    const completedChat = await ensureVisiblePage(await waitForCompletedChat(chat));
     const deploymentPreview = completedChat.latestVersion?.demoUrl
       ? null
       : await createDeploymentPreview(completedChat);
