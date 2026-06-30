@@ -125,9 +125,16 @@ export function Chat({
     }
   }, [query, append, hasAppendedQuery, id]);
 
+  const shouldFetchVotes =
+    !isReadonly && Boolean(session?.user?.id) && messages.length >= 2;
+
   const { data: votes } = useSWR<Array<Vote>>(
-    messages.length >= 2 ? `/api/vote?chatId=${id}` : null,
-    fetcher
+    shouldFetchVotes ? `/api/vote?chatId=${id}` : null,
+    fetcher,
+    {
+      shouldRetryOnError: (error) =>
+        error?.status !== 401 && error?.status !== 403,
+    }
   );
 
   const [attachments, setAttachments] = useState<Array<Attachment>>([]);
